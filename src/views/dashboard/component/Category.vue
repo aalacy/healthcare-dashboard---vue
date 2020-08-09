@@ -4,10 +4,9 @@
     fluid
     tag="section"
   >
+    
     <v-card
       v-if="banner"
-      raised
-      shaped
       class="p-3"
     >
       <v-card-title class="mb-2" >

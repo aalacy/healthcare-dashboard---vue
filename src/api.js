@@ -14,7 +14,7 @@ const getAuthToken = () => {
 */
 
 // API schema
-export const Post = async (url, data={}) => {
+export const Call = async (url, method, data={}) => {
 	let res = {}
 	try {
 		res = await axios({
@@ -23,51 +23,25 @@ export const Post = async (url, data={}) => {
 				'Content-Type': 'application/json; charset=utf-8',
 				'Authorization': getAuthToken()
 			},
-			method: 'POST',
+			method,
 			data
 		})
 	} catch(e) {
 		res = e.response
 	}
-	return res
+	return res.data
+}
+
+export const Post = async (url, data) => {
+	return await Call(url, 'POST', data)
 }
 
 export const Get = async (url, data) => {
-	let res = {}
-	try {
-		res = await axios({
-			url: `${BASE_API}/${url}`,
-			headers: {
-				'Content-Type': 'application/json; charset=utf-8',
-				'Authorization': getAuthToken()
-			},
-			method: 'GET',
-			data
-		})
-	} catch(e) {
-		res = e.response
-	}
-	return res
+	return await Call(url, 'GET', data)
 }
 
-export const updateAnswer = async (data) => {
-	let value = []
-	try {
-		await axios({
-			url: `${BASE_API}/api/public/update`,
-			data: data,
-			method: 'POST'
-		})
-		
-	} catch(e) {}
-}
-
-export const deleteAnswer = async (data) => {
-	return await updateAnswer(data)
-}
-
-export const createAnswer = async (data) => {
-	return await updateAnswer(data)
+export const Put = async (url, data) => {
+	return await Call(url, 'PUT', data)
 }
 
 // mock data
@@ -218,37 +192,6 @@ const smsConfigs = [
 	},
 ]
 
-export const members  = [
-	{
-		"id":"fb10e53e-e267-4c21-a41d-317d7002d13b",
-		"first":"admin",
-		"last":"admin",
-		"dob":"2020-05-16",
-		"email":"admin@gmail.com",
-		"phone":"12345555",
-		"site":"",
-		"token":"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1ODk3MzkzMzQsImlhdCI6MTU4OTY1MjkzNCwic3ViIjoiZmIxMGU1M2UtZTI2Ny00YzIxLWE0MWQtMzE3ZDcwMDJkMTNiIiwiZW1haWwiOiJhZG1pbkBnbWFpbC5jb20iLCJhZG1pbiI6ZmFsc2UsInJvbGUiOiJhZG1pbiJ9.-Pz6nOysWBsZDPZb7lvCV-W2PHyTNaCruY8d_V6syKo",
-		"verified_email":false,
-		"active":false,
-		"admin":false,
-		"role":"admin"
-	},
-	{
-	    "id": "9007de7f-0cf1-4761-9b66-7074d4c14f85",
-	    "first": "sss",
-	    "last": "sss",
-	    "dob": "2020-05-13",
-	    "email": "ssssss@sdf.dd",
-	    "phone": "3234234234",
-	    "site": "dd",
-	    "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1ODkzNjU2NjUsImlhdCI6MTU4OTI3OTI2NSwic3ViIjoiOTAwN2RlN2YtMGNmMS00NzYxLTliNjYtNzA3NGQ0YzE0Zjg1IiwiZW1haWwiOiJzc3Nzc3NAc2RmLmRkIiwiYWRtaW4iOmZhbHNlLCJyb2xlIjoiYWRtaW4ifQ.ONTpIAZM67O1rM23oGOQFYJZHzD_hQafbhsyKwJcI4Y",
-	    "verified_email": false,
-	    "active": false,
-	    "admin": false,
-	    "role": "admin"
-	}
-]
-
 // mock server
 export const getMyProfile = (email) => {
 	return members.filter(member => member.email == email)[0]
@@ -281,52 +224,73 @@ export const latestCommand = (fls_id) => {
 	return command
 }
 
-export const fetchAllUsers = () => {
-	return [
-		{
-			id: 1,
-			account_id: 'fb10e53e-e267-4c21-a41d-317d7002d13b',
-			email: 'admin@gmail.com',
-			phone: 123456,
-			controllers_cnt: 1,
-			staff_cnt: 1,
-			location: 'test location',
-			token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1ODkzNjU3MzAsImlhdCI6MTU4OTI3OTMzMCwic3ViIjoiZmIxMGU1M2UtZTI2Ny00YzIxLWE0MWQtMzE3ZDcwMDJkMTNiIiwiZW1haWwiOiJhZG1pbkBnbWFpbC5jb20iLCJhZG1pbiI6ZmFsc2UsInJvbGUiOiJhZG1pbiJ9.Ql9mGgSYnXCRLIoAEVg6XB4AFZf6EgD2f7UD5YMTZfI'
-		},
-		{
-			id: 2,
-			account_id: 'eb10e53e-e267-4c21-a41d-317dsdfwed13b',
-			email: 'test2@email.com',
-			phone: 123456,
-			controllers_cnt: 1,
-			staff_cnt: 1,
-			location: 'test location 1',
-			token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1ODkzNjU3MzAsImlhdCI6MTU4OTI3OTMzMCwic3ViIjoiZmIxMGU1M2UtZTI2Ny00YzIxLWE0MWQtMzE3ZDcwMDJkMTNiIiwiZW1haWwiOiJhZG1pbkBnbWFpbC5jb20iLCJhZG1pbiI6ZmFsc2UsInJvbGUiOiJhZG1pbiJ9.Ql9mGgSYnXCRLIoAEVg6XB4AFZf6EgD2f7UD5YMTZfI'
-		}
-	]
+/*
+	Sites
+*/
+
+export const getSite = async () => {
+    const site_id = localStorage.getItem('site_id')
+	return await Post('admin/get/site', { site_id }).data
 }
 
-export const fetchFLSListing = () => {
-	return flsListing
+export const updateSite = async (item) => {
+	const data = {
+		site_id: item.site_id,
+		owner: item.owner,
+		phone: item.phone,
+		location: item.location,
+		account_status: item.account_status
+	}
+	return await Put('admin/update/site', data)
 }
 
-export const getFLS = (id) => {
-	return flsListing.filter(fls => fls.id == id)
+export const fetchAllSites = async () => {
+	const res = await Get('admin/all/sites')
+	return JSON.parse(res.data)
 }
 
-export const updateFLSListing = (item) => {
-	let _flsListing = flsListing.map(fls => {
-		if (fls.id == item.id) {
-			return item
-		} else {
-			return fls
-		}
-	})
-
-	flsListing = _flsListing
+export const createSite = async (item) => {
+	return await Post('admin/create/site', item)
 }
 
-export const creatFlsListing = (item) => {
-	flsListing.push(item)
+
+/*
+*	Controllers
+*/
+
+export const fetchAllControllers = async () => {
+	const data = {
+		site_id: localStorage.getItem('site_id')
+	}
+	return await Post('sites/all/controllers', data)
 }
 
+export const fetchSiteHistory = async (item) => {
+	return await Post('sites/history', item)
+}
+
+export const updateController = async (item) => {
+	item.error = 'No'
+	item.reason = "Don't know"
+	return await Post('sites/update/controller', item)
+}
+
+/*
+* Users
+*/
+
+export const getSiteUsers = async () => {
+	const data = {
+		site_id: localStorage.getItem('site_id')
+	}
+	return await Post('sites/all/users', data)
+}
+
+export const updateMemberStatus = async (email, active) => {
+	const data = {
+		site_id: localStorage.getItem('site_id'),
+		email,
+		active
+	}
+	return await Post('sites/update/activate', data)
+}

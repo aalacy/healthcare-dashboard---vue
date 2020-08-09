@@ -177,10 +177,11 @@
         :loading="loading"
         :headers="headers"
         :items="users"
-        item-key="_id"
+        item-key="user_id"
         :items-per-page="5"
         :search="search"
         class="custom-alert"
+        color="secondary"
       > 
         <template v-slot:item.email="{ item }">
           <span v-html="beautifyEmail(item.email)"></span>
@@ -199,24 +200,11 @@
                 v-on="on"
                 @click.stop="toggleUser(item)"
               >
-                <v-icon>mdi-account-outline</v-icon>
+                <v-icon>{{approveIcon(item.active)}}</v-icon>
               </v-btn>
             </template>
             <span>{{approveTooltip(item)}}</span>
           </v-tooltip>
-          <!-- <v-tooltip bottom>
-            <template v-slot:activator="{ on }">
-              <v-btn 
-                text 
-                icon 
-                v-on="on"
-                @click.stop="editStaff(item)"
-              >
-                <v-icon>mdi-pencil-outline</v-icon>
-              </v-btn>
-            </template>
-            <span>Edit</span>
-          </v-tooltip> -->
           <v-tooltip bottom>
             <template v-slot:activator="{ on }">
               <v-btn 
@@ -265,7 +253,7 @@
 
 <script>
   import { beautifyEmail } from '../../util'
-  import { Get } from '../../api'
+  import { getSiteUsers, updateMemberStatus } from '../../api'
 
   export default {
     name: 'Owners',
@@ -303,7 +291,7 @@
         },
         {
           text: 'Site',
-          value: 'site',
+          value: 'site_id',
           align: 'center'
         },
         {
@@ -350,6 +338,14 @@
     methods: {
       beautifyEmail,
 
+      approveIcon(status) {
+        if (status) {
+          return 'mdi-account-off-outline'
+        } else {
+          return 'mdi-account-check-outline'
+        }
+      },
+
       statusColor (active) {
         return active ? 'red' : 'black'
       },
@@ -360,13 +356,13 @@
 
       async fetchUsers () {
         this.loading = "secondary"
-        const res = await Get('auth/users/all')
-        if (res.data.status != 'success') {
+        const res = await getSiteUsers()
+        if (res.status != 'success') {
           this.snackText = res.data.message
           this.snackColor = res.data.status
-          this.snack = true
+          this.snackbar = true
         } else {
-          this.users = res.data.users
+          this.users = res.users
         }
         this.loading = false
       },
@@ -379,25 +375,31 @@
         }, 300)
       },
 
-
-      editStaff (item) {
-
-      },
-
       deleteStaff (item) {
         // this.defaultIndex = this.users.indexOf(item)
         // this.editItem = Object.assign({}, item)
         // this.modal = true
-        this.users = this.users.filter(user=> user.id != item.id)
+        this.users = this.users.filter(user=> user.user_id != item.user_id)
       },
 
-      toggleUser (item) {
-        this.users = this.users.map(user => {
-          if (user.id == item.id) {
-            user.active = !user.active
-          }
-          return user
-        })
+      async toggleUser (item) {
+        console.log(item)
+        this.loading = true
+        try {
+          const res = await updateMemberStatus(item.email, !item.active)
+          this.snackText = res.message
+          this.snackColor = res.status
+          this.snackbar = true
+          this.users = this.users.map(user => {
+            if (user.email == item.email) {
+              user.active = !user.active
+            }
+            return user
+          })
+        } catch(e) {
+          console.log(e)
+        }
+        this.loading = false
       },
 
       async addStaff() {

@@ -148,10 +148,11 @@
 
       gotoDashboard (data) {
         localStorage.setItem('jwt', 'success')
-        localStorage.setItem('site_id', data.site_id)
-        const token = jwtDecode(data.token)
         localStorage.setItem('token', data.token)
+        const token = jwtDecode(data.token)
         console.log(token)
+        localStorage.setItem('site_id', token.site_id)
+        localStorage.setItem('email', token.email)
         if (token.role == 'root') {
           localStorage.setItem('roottoken', data.token)
           this.$router.push({ name: "Users" });
@@ -161,10 +162,6 @@
       },
 
       async submit () {
-        this.gotoDashboard({
-          token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTUzNDg4NTAsImlhdCI6MTU5NTI2MjQ1MCwic3ViIjoiM2Q2NTg2N2EtYWRjMC00NjIzLTk1YWMtZmZkODllY2ViZTNkIiwiZW1haWwiOiJyb290QGdtYWlsLmNvbSIsImFkbWluIjpmYWxzZSwicm9sZSI6InJvb3QifQ.KMBaFAVTIm8WOy3sGPB37qX8O1Jl49We8p2J8FG1x_c'
-        })
-        return
         this.$refs.form.validate()
 
         if (this.valid) {

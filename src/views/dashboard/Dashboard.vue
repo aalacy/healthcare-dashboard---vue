@@ -35,7 +35,7 @@
       <v-data-table
         :loading="loading"
         :headers="headers"
-        :items="valves"
+        :items="controllers"
         item-key="valve_id"
         :items-per-page="5"
         :search="search"
@@ -76,6 +76,7 @@
                 text 
                 icon 
                 v-on="on"
+                :disabled="disabledControl(item, 'opened')"
                 @click.stop="openValve(item)"
               >
                 <v-icon large color="success">mdi-lock-open-variant-outline</v-icon>
@@ -91,6 +92,7 @@
                 text 
                 icon 
                 v-on="on"
+                :disabled="disabledControl(item, 'partial opened')"
                 @click.stop="partialOpenValve(item)"
               >
                 <v-icon large color="yellow darken-4">mdi-lock-open-outline</v-icon>
@@ -106,6 +108,7 @@
                 text 
                 icon 
                 v-on="on"
+                :disabled="disabledControl(item, 'closed')"
                 @click.stop="closeValve(item)"
               >
                 <v-icon large color="red darken-4">mdi-lock-outline</v-icon>
@@ -115,9 +118,9 @@
           </v-tooltip>
         </template>
 
-        <template v-slot:item.status="{ item }">
-          <v-chip label outlined :color="valveStatusColor(item.status)" dark>
-            <div class="subtitle-2">{{ item.status.toUpperCase() }}</div>
+        <template v-slot:item.valve_status="{ item }">
+          <v-chip label outlined :color="valveStatusColor(item.valve_status)" dark>
+            <div class="subtitle-2">{{ item.valve_status.toUpperCase() }}</div>
           </v-chip>
         </template>
 
@@ -141,7 +144,7 @@
     >
       <v-card>
         <div class="font-weight-medium display-1 d-flex justify-space-between align-center ml-6 mr-2 pt-5">
-          <div>History Listing - FLSID ({{ historyValves.length }})</div>
+          <div>History - {{siteId}}</div>
           <v-btn text icon @click="historyDialog = false">
             <v-icon>mdi-close</v-icon>
           </v-btn>
@@ -188,7 +191,7 @@
           <v-data-table
             :loading="loadingHistory"
             :headers="historyHeaders"
-            :items="historyValves"
+            :items="historyControllers"
             item-key="_id"
             class="mx-3 custom-alert"
             :items-per-page="5"
@@ -196,13 +199,13 @@
           >
             <template v-slot:item.valve_status="{ item }">
               <v-chip label outlined :color="valveStatusColor(item.valve_status)" dark>
-                <div class="subtitle-2">{{ item.valve_status.toUpperCase() }}</div>
+                <div class="subtitle-2">{{ toUpper(item.valve_status) }}</div>
               </v-chip>
             </template>
 
             <template v-slot:item.error="{ item }">
               <v-chip label outlined :color="errorStatusColor(item.error)" dark>
-                <div class="subtitle-2">{{ item.error.toUpperCase() }}</div>
+                <div class="subtitle-2">{{ toUpper(item.error) }}</div>
               </v-chip>
             </template>
           </v-data-table>
@@ -214,8 +217,10 @@
 
 <script>
   import { beautifyEmail } from '../../util'
-  import { Post } from '../../api'
+  import { fetchAllControllers, fetchSiteHistory, updateController } from '../../api'
   import EmittingAnalogClock from 'vue-emitting-analog-clock';
+  import { mapState } from 'vuex'
+  import { toUpper, toLower } from 'lodash'
 
   export default {
     name: 'DashboardDashboard',
@@ -233,11 +238,6 @@
         snackText: '',
         shadowing: false,
         headers: [
-          // {
-          //   text: 'Customer Name',
-          //   value: 'owner',
-          //   align: 'center'
-          // },
           {
             text: 'Location',
             value: 'location',
@@ -270,7 +270,7 @@
             width: 90
           },
           {
-            text: 'Patial Open Valve',
+            text: 'Partial Open Valve',
             value: 'partial_open_value',
             align: 'center',
             sortable: false,
@@ -313,12 +313,6 @@
             align: 'center',
             width: 140
           },
-          // {
-          //   text: 'Most Recent Connection',
-          //   value: 'date',
-          //   align: 'center',
-          //   width: 130
-          // },
           {
             text: 'Error',
             value: 'error_status',
@@ -353,7 +347,7 @@
         historyHeaders: [
           {
             text: 'Date & Time',
-            value: 'date',
+            value: 'datetime',
             align: 'center',
           },
           {
@@ -375,6 +369,12 @@
             width: 170
           },
           {
+            text: 'NWS Frequency',
+            value: 'nws_frequency',
+            align: 'center',
+            width: 170
+          },
+          {
             text: 'Reason Code',
             value: 'reason',
             align: 'center',
@@ -387,8 +387,8 @@
             width: 120
           },
         ],
-        valves: [],
-        historyValves: [],
+        controllers: [],
+        historyControllers: [],
         selectedDates: [],
       }
     },
@@ -399,13 +399,14 @@
     },
 
     computed: {
-     computedDateFormatted () {
+      ...mapState(['siteId']),
+      computedDateFormatted () {
       if (this.selectedDates.length) {
         return this.selectedDates[0] + ' ~ ' + this.selectedDates[1]
       } else {
         return ''
       }
-     }
+      }
     },
 
     async mounted () {
@@ -414,10 +415,16 @@
 
     methods: {
       beautifyEmail,
+      toUpper,
+      toLower,
+
+      disabledControl (item, status) {
+        return item.valve_status == status
+      },
 
       valveStatusColor (valve_status) {
-        valve_status = valve_status.toLowerCase()
-        if (valve_status == 'open') {
+        valve_status = toLower(valve_status)
+        if (valve_status == 'opened') {
           return 'success'
         } else if (valve_status == 'closed') {
           return 'red darken-3'
@@ -427,7 +434,7 @@
       },
 
       linkStatusColor (link_status) {
-        link_status = link_status.toLowerCase()
+        link_status = toLower(link_status)
         if (link_status == 'connected') {
           return 'success'
         } else {
@@ -436,7 +443,7 @@
       },
 
       errorStatusColor (error) {
-        error = error.toLowerCase()
+        error = toLower(error)
         if (error == 'good') {
           return 'success'
         } else {
@@ -446,42 +453,50 @@
 
       async fetchSites () {
         this.loading = "secondary"
-        // const site_id = localStorage.getItem('site_id')
-        const site_id = '203eebc5-973b-4bc3-b66f-5fc41f5da11a' 
-        const res = await Post(`sites/get/site`, {site_id})
-        if (res.data.status != 'success') {
-          this.snackText = res.data.message
-          this.snackColor = res.data.status
-          this.snack = true
-        } else if (res.data){
-          const _site = JSON.parse(res.data.data)
-          _site.valve.map(valve => {
-            this.valves.push({
-              ...valve,
-              owner: _site.owner,
-              location: _site.city + ' ' +_site.state,
-              type: _site.type
-            })
+        // const site_id = '203eebc5-973b-4bc3-b66f-5fc41f5da11a' 
+        const res = await fetchAllControllers()
+        this.snackText = res.message
+        this.snackColor = res.status
+        this.snack = true
+        res.data.map(controller => {
+          this.controllers.push({
+            ...controller,
+            owner: controller.owner,
+            location: controller.city + ' ' +controller.state,
+            type: controller.type
           })
-        }
+        })
         this.loading = false
       },
 
-      showHistory (item) {
-        this.historyValves = this.controllers
+      async showHistory (item) {
+        const res = await fetchSiteHistory(item)
+        this.snackText = res.message
+        this.snackColor = res.status
+        this.snack = true
+        this.historyControllers = res.data
         this.historyDialog = true
       },
 
-      openValve (item) {
-
+      async openValve (item) {
+        this.loading = true
+        item.valve_status = 'opened'
+        const res = await updateController(item)
+        this.loading = false
       },
 
-      partialOpenValve (item) {
-
+      async partialOpenValve (item) {
+        this.loading = true
+        item.valve_status = 'partial opened'
+        const res = await updateController(item)
+        this.loading = false
       },
 
-      closeValve (item) {
-
+      async closeValve (item) {
+        this.loading = true
+        item.valve_status = 'closed'
+        const res = await updateController(item)
+        this.loading = false
       },
 
       filterRange (date) {
@@ -490,13 +505,13 @@
         const startDate = date[0]
         const endDate = date[1]
         const self = this
-        this.historyValves = this.controllers.filter(controller => self.$moment(controller.connected_at).isSameOrAfter(startDate) && self.$moment(controller.connected_at).isSameOrBefore(endDate)
+        this.historyControllers = this.controllers.filter(controller => self.$moment(controller.connected_at).isSameOrAfter(startDate) && self.$moment(controller.connected_at).isSameOrBefore(endDate)
         )
       },
 
       refreshHistory () {
         this.selectedDates = []
-        this.historyValves = this.controllers
+        this.historyControllers = this.controllers
       }
     },
   }
