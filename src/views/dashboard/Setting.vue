@@ -330,7 +330,7 @@
           localStorage.removeItem('custom')
           localStorage.removeItem('site_id')
           this.$router.push({name: 'Users'})
-        }
+        },
 
           showSnack (res) {
             this.snackText = res.message

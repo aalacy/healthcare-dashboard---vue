@@ -355,7 +355,7 @@
           localStorage.removeItem('custom')
           localStorage.removeItem('site_id')
           this.$router.push({name: 'Users'})
-        }
+        },
 
       approveIcon(status) {
         if (status) {
