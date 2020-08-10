@@ -211,6 +211,7 @@
                 text 
                 icon 
                 v-on="on"
+                :disabled="item.role == 'admin'"
                 @click.stop="deleteStaff(item)"
               >
                 <v-icon>mdi-delete</v-icon>
@@ -253,7 +254,7 @@
 
 <script>
   import { beautifyEmail } from '../../util'
-  import { getSiteUsers, updateMemberStatus } from '../../api'
+  import { getSiteUsers, updateMemberStatus, removeStaff } from '../../api'
 
   export default {
     name: 'Owners',
@@ -376,10 +377,33 @@
       },
 
       deleteStaff (item) {
-        // this.defaultIndex = this.users.indexOf(item)
-        // this.editItem = Object.assign({}, item)
-        // this.modal = true
-        this.users = this.users.filter(user=> user.user_id != item.user_id)
+        const self = this
+        this.$dialog.confirm({
+          text: 'Do you really want to remove this staff?',
+          title: 'Warning',
+          actions: {
+            false: 'No',
+            true: {
+              color: 'red',
+              text: 'Yes',
+              handle: () => {
+                self._deleteStaff(item)
+              }
+            }
+          }
+        })
+      },
+
+      async _deleteStaff(item) {
+        this.loading = true
+        const res = await removeStaff(item.site_id)
+        this.snackText = res.message
+        this.snackColor = res.status
+        this.snackbar = true
+        if (res.status == 'success') {
+          this.users = this.users.filter(user => user.site_id != item.site_id)
+        }
+        this.loading = false
       },
 
       async toggleUser (item) {
@@ -390,12 +414,14 @@
           this.snackText = res.message
           this.snackColor = res.status
           this.snackbar = true
-          this.users = this.users.map(user => {
-            if (user.email == item.email) {
-              user.active = !user.active
-            }
-            return user
-          })
+          if (res.status == 'success') {
+            this.users = this.users.map(user => {
+              if (user.email == item.email) {
+                user.active = !user.active
+              }
+              return user
+            })
+          }
         } catch(e) {
           console.log(e)
         }

@@ -246,7 +246,7 @@ export const updateSite = async (item) => {
 
 export const fetchAllSites = async () => {
 	const res = await Get('admin/all/sites')
-	return JSON.parse(res.data)
+	return res.data
 }
 
 export const createSite = async (item) => {
@@ -258,6 +258,14 @@ export const createSite = async (item) => {
 *	Controllers
 */
 
+export const createController = async (item) => {
+	const data = {
+		...item,
+		site_id: localStorage.getItem('site_id')
+	}
+	return await Post('controller/create', data)
+}
+
 export const fetchAllControllers = async () => {
 	const data = {
 		site_id: localStorage.getItem('site_id')
@@ -265,15 +273,16 @@ export const fetchAllControllers = async () => {
 	return await Post('sites/all/controllers', data)
 }
 
-export const fetchSiteHistory = async (item) => {
-	return await Post('sites/history', item)
-}
-
 export const updateController = async (item) => {
 	item.error = 'No'
 	item.reason = "Don't know"
 	return await Post('sites/update/controller', item)
 }
+
+export const fetchSiteHistory = async (item) => {
+	return await Post('sites/history', item)
+}
+
 
 /*
 * Users
@@ -293,4 +302,24 @@ export const updateMemberStatus = async (email, active) => {
 		active
 	}
 	return await Post('sites/update/activate', data)
+}
+
+export const removeStaff = async(user_id) => {
+	const data = {
+		site_id: localStorage.getItem('site_id'),
+		user_id,
+	}
+	return await Post('sites/delete', data)
+}
+
+/*
+*	User profile
+*/
+
+export const getAlerts = async(user_id) => {
+	const data = {
+		site_id: localStorage.getItem('site_id'),
+		user_id,
+	}
+	return await Post('auth/get/alerts', data)
 }

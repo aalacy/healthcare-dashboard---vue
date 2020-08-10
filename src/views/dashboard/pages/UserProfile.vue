@@ -229,7 +229,7 @@
 
 <script>
   import jwtDecode from 'jwt-decode'
-  import { Post, getSMSConfigs, getMyProfile } from '../../../api'
+  import { getAlerts, getMyProfile } from '../../../api'
 
   export default {
     name: "UserProfile",
@@ -306,9 +306,7 @@
     },
 
     mounted () {
-      this.fillUser()
-
-      this.configs = getSMSConfigs()
+      this.getUserData()
     },
 
     methods: {
@@ -318,8 +316,20 @@
         // } catch (e) {
         //   console.log(e)
         // }
-        const email = jwtDecode(localStorage.getItem('token')).email
         this.form = getMyProfile(email)
+      },
+
+      async getUserData () {
+        this.loading = true
+        const email = jwtDecode(localStorage.getItem('token')).email
+        const res = await getAlerts(email)
+        this.snackbar_message = res.message
+        this.snackbar_color = res.status
+        this.snackbar = true
+        if (res.status == 'success') {
+          this.configs = res.data.options
+        }
+        this.loading = false
       },
 
       async submit () {

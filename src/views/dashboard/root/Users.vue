@@ -23,11 +23,12 @@
           <v-data-table
             :loading="loading"
             :headers="headers"
-            :items="users"
-            item-key="id"
+            :items="sites"
+            item-key="site_id"
             :items-per-page="5"
             :search="search"
             class="custom-alert"
+            color="secondary"
           > 
             <template v-slot:item.owner="{ item }">
               <span v-html="beautifyEmail(item.owner)"></span>
@@ -101,7 +102,7 @@
         dialog: false,
         dateMenu: false,
         modal: false,
-        users: [],
+        sites: [],
         headers: [
           {
             text: 'Site ID',
@@ -132,7 +133,7 @@
       }),
 
       async mounted () {
-        this.users = await fetchAllSites()
+        this.sites = await fetchAllSites()
       },
 
       methods: {

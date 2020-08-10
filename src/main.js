@@ -23,6 +23,8 @@ import vuetify from './plugins/vuetify'
 import i18n from './i18n'
 // import IdleVue from 'idle-vue'
 import VueFriendlyIframe from 'vue-friendly-iframe';
+import VuetifyDialog from 'vuetify-dialog'
+import 'vuetify-dialog/dist/vuetify-dialog.css'
 
 Vue.config.productionTip = false
 
@@ -43,3 +45,8 @@ const eventsHub = new Vue({
 
 Vue.use(VueFriendlyIframe);
 Vue.use(require('vue-moment'));
+Vue.use(VuetifyDialog, {
+  context: {
+    vuetify
+  }
+})

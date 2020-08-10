@@ -54,27 +54,12 @@
                           md="6"
                         >
                           <v-text-field
-                            v-model="editItem.fls_id"
-                            :loading="loading"
-                            :rules="[rules.required]"
-                            hide-details="auto"
-                            class="mb-5"
-                            label="Enter Device Id"
-                            prepend-icon="mdi-identifier"
-                            required
-                          />
-                        </v-col>
-                        <v-col
-                          cols="12"
-                          md="6"
-                        >
-                          <v-text-field
-                            v-model="editItem.controller_location"
+                            v-model="editItem.city"
                             :rules="[rules.required]"
                             :loading="loading"
                             class="mb-5"
                             hide-details="auto"
-                            label="Enter Location"
+                            label="Enter City"
                             prepend-icon="mdi-google-maps"
                             @keyup.enter="submit"
                             required
@@ -86,7 +71,24 @@
                           md="6"
                         >
                           <v-text-field
-                            v-model="editItem.controller_description"
+                            v-model="editItem.state"
+                            :rules="[rules.required]"
+                            :loading="loading"
+                            class="mb-5"
+                            hide-details="auto"
+                            label="Enter State"
+                            prepend-icon="mdi-google-maps"
+                            @keyup.enter="submit"
+                            required
+                          />
+                        </v-col>
+
+                        <v-col
+                          cols="12"
+                          md="6"
+                        >
+                          <v-text-field
+                            v-model="editItem.desc"
                             :rules="[rules.required]"
                             :loading="loading"
                             class="mb-5"
@@ -102,7 +104,7 @@
                           md="6"
                         >
                           <v-text-field
-                            v-model="editItem.controller_type"
+                            v-model="editItem.type"
                             :rules="[rules.required]"
                             :loading="loading"
                             class="mb-5"
@@ -118,7 +120,7 @@
                           md="6"
                         >
                           <v-text-field
-                            v-model="editItem.connection_interval"
+                            v-model="editItem.interval"
                             :rules="[rules.required]"
                             :loading="loading"
                             class="mb-5"
@@ -228,7 +230,7 @@
 
 <script>
     import { beautifyEmail } from '../../util'
-    import { Get, fetchFLSListing, creatFlsListing, updateFLSListing } from '../../api'
+    import { Get, fetchAllControllers, createController, updateFLSListing } from '../../api'
 
     export default {
       name: 'Root',
@@ -264,23 +266,23 @@
           // },
           {
             text: 'Device Id',
-            value: 'fls_id'
+            value: 'controller_id'
           },
           {
             text: 'Controller Location',
-            value: 'controller_location'
+            value: 'location'
           },
           {
             text: 'Controller Description',
-            value: 'controller_description'
+            value: 'desc'
           },
           {
             text: 'Controller Type',
-            value: 'controller_type'
+            value: 'type'
           },
           {
             text: 'Controller Interval',
-            value: 'connection_interval'
+            value: 'interval'
           },
           { text: 'Actions', value: 'action', sortable: false },
         ],
@@ -299,7 +301,7 @@
       }),
 
       mounted () {
-        this.items = fetchFLSListing()
+        this.loadControllers()  
       },
 
       computed: {
@@ -312,13 +314,8 @@
           beautifyEmail,
 
           showSnack (res) {
-            if (res.data.status == 'success') {
-              this.snackText = 'Success'
-              this.snackColor = 'success'
-            } else {
-              this.snackText = 'Failed'
-              this.snackColor = 'warning'
-            }
+            this.snackText = res.message
+            this.snackColor = res.status
             this.snackbar = true
           },
 
@@ -328,6 +325,21 @@
 
           configureFLS (item) {
             this.$router.push({ path: `/root/configure/${item.fls_id}`})
+          },
+
+          async loadControllers() {
+            const res = await fetchAllControllers()
+            this.snackText = res.message
+            this.snackColor = res.status
+            this.snack = true
+            res.data.map(controller => {
+              this.items.push({
+                ...controller,
+                owner: controller.owner,
+                location: controller.city + ' ' +controller.state,
+                type: controller.type
+              })
+            })
           },
 
           closeDialog () {
@@ -350,22 +362,19 @@
             this.dialog = true
           },
 
-          addFls () {
+          async addFls () {
             this.$refs.form.validate()
             if (!this.valid) {
               return
             }
             const item = Object.assign({}, this.editItem)
             let res = {
-              data: {
-                status: 'success' 
-              }
+              status: 'success' 
             }
             if (this.defaultIndex > -1) {
                 updateFLSListing(item)
-                Object.assign(this.items[this.defaultIndex], item)
             } else {
-                creatFlsListing(item)
+              res = await createController(item)
                 // this.items.push(item)
             }
             this.closeDialog()
