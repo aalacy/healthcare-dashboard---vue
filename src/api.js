@@ -2,8 +2,8 @@ import axios from 'axios'
 import moment from 'moment'
 
 // export const BASE_API = process.env.BASE_API
-export const BASE_API = 'http://localhost:5000'
-// export const BASE_API = 'https://urinotsecure.revampcybersecurity.com'
+// export const BASE_API = 'http://localhost:5000'
+export const BASE_API = 'http://18.191.147.68'
 
 const getAuthToken = () => {
 	return localStorage.getItem('token')

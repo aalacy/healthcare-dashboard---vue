@@ -249,6 +249,18 @@
           </v-card-actions>
         </v-card>
       </v-dialog>
+      <v-btn
+      v-if="root"
+      absolute
+      dark
+      fab
+      bottom
+      right
+      color="pink"
+      @click="returnToRoot"
+    >
+      <v-icon>mdi-send</v-icon>
+    </v-btn>
   </v-container>
 </template>
 
@@ -338,6 +350,12 @@
 
     methods: {
       beautifyEmail,
+
+       returnToRoot() {
+          localStorage.removeItem('custom')
+          localStorage.removeItem('site_id')
+          this.$router.push({name: 'Users'})
+        }
 
       approveIcon(status) {
         if (status) {
