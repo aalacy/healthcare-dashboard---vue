@@ -7,13 +7,25 @@
     <dashboard-core-view />
 
     <!-- <dashboard-core-settings v-model="expandOnHover" /> -->
-
+    <v-btn
+      v-if="root"
+      absolute
+      dark
+      fab
+      bottom
+      right
+      color="pink"
+      @click="returnToRoot"
+    >
+      <v-icon>mdi-send</v-icon>
+    </v-btn>
   </v-app>
 </template>
 
 <script>
   import { BASE_API } from '../../api'
   import axios from 'axios'
+  import jwtDecode from 'jwt-decode'
   
   export default {
     name: 'DashboardIndex',
@@ -32,6 +44,22 @@
     computed: {
       isIdle() {
         return this.$store.state.idleVue.isIdle;
+      },
+      root () {
+        try {
+          this.rootRole = jwtDecode(localStorage.getItem('roottoken')).role
+        } catch (e) {}
+        const customCode = localStorage.getItem('custom')
+        return this.rootRole == 'root' && customCode == 'root'
+      },
+
+    },
+
+    methods: {
+      returnToRoot() {
+        localStorage.removeItem('custom')
+        localStorage.removeItem('site_id')
+        this.$router.push({name: 'Users'})
       }
     }
   }

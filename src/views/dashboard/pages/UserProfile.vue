@@ -203,7 +203,7 @@
                   label="Notify via text message"
                 ></v-checkbox>
 
-                <v-btn class="success">Update</v-btn>
+                <v-btn class="success" @class="updateNotiy">Update</v-btn>
               </v-sheet>
             </v-col>
           </v-row>
@@ -229,7 +229,7 @@
 
 <script>
   import jwtDecode from 'jwt-decode'
-  import { getAlerts, getMyProfile } from '../../../api'
+  import { getAlerts, getMyProfile, updateProfile } from '../../../api'
 
   export default {
     name: "UserProfile",
@@ -311,12 +311,6 @@
 
     methods: {
       fillUser () {
-        // try {
-        //   this.form = JSON.parse(localStorage.getItem('user'))
-        // } catch (e) {
-        //   console.log(e)
-        // }
-        this.form = getMyProfile(email)
       },
 
       async getUserData () {
@@ -332,11 +326,28 @@
         this.loading = false
       },
 
-      async submit () {
+      submit () {
+        const self = this
+        this.$dialog.confirm({
+          text: 'Do you really want to update the profile?',
+          title: 'Warning',
+          actions: {
+            false: 'No',
+            true: {
+              color: 'red',
+              text: 'Yes',
+              handle: () => {
+                self._udpateProfile()
+              }
+            }
+          }
+        })  
+      },
+      async _udpateProfile() {
         this.loading = true
-        const res = await Post('auth/update', this.form)
-        this.snackbar_message = res.data.message
-        this.snackbar_color = res.data.status
+        const res = await updateProfile(this.form)
+        this.snackbar_message = res.message
+        this.snackbar_color = res.status
         this.snackbar = true
         this.loading = false
       }

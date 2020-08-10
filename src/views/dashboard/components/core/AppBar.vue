@@ -85,6 +85,7 @@
       mdi-close
     </v-icon>
   </v-snackbar>
+
   </div>
 </template>
 
@@ -137,6 +138,7 @@
     data: () => ({
       message: '',
       snackbar: false,
+      rootRole: 'admin',
       notifications: [
         'Mike John Responded to your email',
         'You have 5 new tasks',
@@ -153,8 +155,8 @@
         { icon: 'mdi-account-group', title: 'Root', name: 'Root', is_root: true },
         { icon: 'mdi-file-cog', title: 'Location', name: 'Sites' },
         { icon: 'mdi-account-group-outline', title: 'Staff', name: 'Staff' },
-        { icon: 'mdi-cog', title: 'Configure', name: 'Configure' },
-        { icon: 'mdi-account-outline', title: 'Customer', name: 'My Profile' },
+        { icon: 'mdi-cog', title: 'Configure', name: 'Configure'},
+        { icon: 'mdi-account-outline', title: 'Customer', name: 'My Profile', is_only_admin:true },
         { icon: 'mdi-logout', title: 'Logout', name: 'Login', both: true }
       ],
       selected: 0,
@@ -166,7 +168,15 @@
 
       computedItems () {
         let new_items = this.menu.map(this.mapItem)
-        new_items = new_items.filter(item => item)
+        new_items = new_items.filter(item => {
+          if (this.rootRole == 'root') {
+            if (item && !item.is_only_admin) {
+              return item
+            }
+          } else {
+            return item
+          }
+        })
         new_items.map((item, i) => {
           if (this.currentRoute.includes(item.name)) {
             this.selected = i
@@ -178,6 +188,8 @@
 
     mounted () {
      this.currentRoute = this.$router.history.current.name
+
+     console.log(this.root())
     },
 
     methods: {
@@ -186,12 +198,11 @@
       }),
 
       root () {
-        let rootRole = ''
         try {
-          rootRole = jwtDecode(localStorage.getItem('roottoken')).role
+          this.rootRole = jwtDecode(localStorage.getItem('roottoken')).role
         } catch (e) {}
         const customCode = localStorage.getItem('custom')
-        return rootRole == 'root' && customCode != 'root'
+        return this.rootRole == 'root' && customCode != 'root'
       },
 
       mapItem (item) {
@@ -212,7 +223,14 @@
         }
       },
 
+      clearStorage() {
+        // localStorage.removeItem('custom')
+      },
+
       async goto (name, index=-1) {
+        if (name = 'Login') {
+          this.clearStorage()
+        }
         if (name != this.currentRoute) {
           this.$router.push({ name })
         }

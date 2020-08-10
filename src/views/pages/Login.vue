@@ -150,7 +150,6 @@
         localStorage.setItem('jwt', 'success')
         localStorage.setItem('token', data.token)
         const token = jwtDecode(data.token)
-        console.log(token)
         localStorage.setItem('site_id', token.site_id)
         localStorage.setItem('email', token.email)
         if (token.role == 'root') {

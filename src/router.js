@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+import jwtDecode from 'jwt-decode'
 
 Vue.use(Router)
 
@@ -47,7 +48,8 @@ let router = new Router({
           path: 'users',
           component: () => import('@/views/dashboard/root/Users'),
           meta: {
-            requiresAuth: true
+            requiresAuth: true,
+            is_root: true
           }
         },
         {
@@ -55,15 +57,16 @@ let router = new Router({
           path: 'root/all',
           component: () => import('@/views/dashboard/root/Root'),
           meta: {
-            requiresAuth: true
+            requiresAuth: true,
+            is_root: true
           },
         },
         {
-          path: 'root/configure/:id',
+          path: 'configure/:id',
           name: 'FLS Configure',
-          component: () => import('@/views/dashboard/root/Configure'),
+          component: () => import('@/views/dashboard/Configure'),
           meta: {
-            requiresAuth: true
+            requiresAuth: true,
           },
         },
         {
@@ -71,7 +74,7 @@ let router = new Router({
           path: 'staff',
           component: () => import('@/views/dashboard/Staff'),
           meta: {
-            requiresAuth: true
+            requiresAuth: true,
           }
         },
         {
@@ -79,7 +82,7 @@ let router = new Router({
           path: 'configure',
           component: () => import('@/views/dashboard/Setting'),
           meta: {
-            requiresAuth: true
+            requiresAuth: true,
           }
         },
         // Pages
@@ -88,7 +91,8 @@ let router = new Router({
           path: 'myprofile',
           component: () => import('@/views/dashboard/pages/UserProfile'),
           meta: {
-            requiresAuth: true
+            requiresAuth: true,
+            is_admin: true
           }
         },
         {
@@ -121,25 +125,39 @@ let router = new Router({
 router.beforeEach((to, from, next) => {
     if(to.matched.some(record => record.meta.requiresAuth)) {
         if (localStorage.getItem('jwt') == null || localStorage.getItem('jwt') == 'null') {
-            next({
-                path: '/auth/login',
-                params: { nextUrl: to.fullPath }
-            })
+          next({
+              path: '/auth/login',
+              params: { nextUrl: to.fullPath }
+          })
         } else {
+          console.log(to)
+            
+          if (to.meta.is_root) {
             let user = {}
             try {
-              user = JSON.parse(localStorage.getItem('user'))
+              user = jwtDecode(localStorage.getItem('roottoken'))
             } catch (e) {}
-            if(to.matched.some(record => record.meta.is_admin)) {
-                if(user.role == 'Admin'){
-                    next()
-                }
-                else{
-                    next({ name: 'Dashboard'})
-                }
-            }else {
-                next()
+            if (user.role == 'root') {
+              next()
+            } else {
+              next({name: 'Login'})
             }
+          } else {
+            let user = {}
+            try {
+              user = jwtDecode(localStorage.getItem('token'))
+            } catch (e) {}
+            if(to.meta.is_admin){
+              if (user.role != 'root') {
+                next()
+              } else {
+                next({ name: 'Login' })
+              }
+            }
+            else{
+              next()
+            }
+          }
         }
     } else {
         next()

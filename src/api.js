@@ -193,35 +193,65 @@ const smsConfigs = [
 ]
 
 // mock server
-export const getMyProfile = (email) => {
-	return members.filter(member => member.email == email)[0]
-}
 
 export const getSMSConfigs = (user_id) => {
 	return smsConfigs;
 }
 
-export const submitCommand = (command) => {
-	flsCommandsHistories.push({
-		id: flsCommandsHistories.length + 1,
+export const submitCommand = async (command) => {
+	const data = {
 		...command,
-		sent_on: moment().format('YYYY-MM-DD HH:mm:ss'),
-		received_on: moment().add(10, 'days').format('YYYY-MM-DD HH:mm:ss'),
-		status: 'Waiting'
-	})
-}
-
-export const getCommandsHistories = (fls_id) => {
-	return flsCommandsHistories.filter(item => item.fls_id == fls_id).sort((a, b) => new Date(b.sent_on) - new Date(a.sent_on))
-}
-
-export const latestCommand = (fls_id) => {
-	const commands = flsCommandsHistories.filter(item => item.fls_id == fls_id).sort((a, b) => new Date(b.sent_on) - new Date(a.sent_on))
-	let command = []
-	if (commands.length > 0) {
-		command = [commands[0]]
+		site_id: localStorage.getItem('site_id')
 	}
-	return command
+	return await Post('commands/update/fips', data)
+}
+
+export const createEvent = async (event) => {
+	const data = {
+		...event,
+		site_id: localStorage.getItem('site_id')
+	}
+	return await Post('commands/create/events', data)
+}
+
+export const updateControllerConfig = async (config) => {
+	const data = {
+		...config,
+		site_id: localStorage.getItem('site_id')
+	}
+	return await Post('commands/update/config', data)
+}
+
+export const clearCommands = async (controller_id) => {
+	const data = {
+		controller_id,
+		site_id: localStorage.getItem('site_id')
+	}
+	return await Post('commands/delete/events', data)
+}
+
+export const getCommandsHistories = async (controller_id) => {
+	const data = {
+		controller_id,
+		site_id: localStorage.getItem('site_id')
+	}
+	const fips = await Post('commands/get/fips_history', data)
+	const events = await Post('commands/get/events_history', data)
+	const configs = await Post('commands/get/config_history', data)
+
+	return {
+		fips: fips.data,
+		events: events.data,
+		configs: configs.data
+	}
+}
+
+export const latestCommand = async (controller_id) => {
+	const data = {
+		controller_id,
+		site_id: localStorage.getItem('site_id')
+	}
+	return await Post('commands/get/commands', data)
 }
 
 /*
@@ -273,10 +303,26 @@ export const fetchAllControllers = async () => {
 	return await Post('sites/all/controllers', data)
 }
 
-export const updateController = async (item) => {
+export const updateControllerValve = async (item) => {
 	item.error = 'No'
 	item.reason = "Don't know"
 	return await Post('sites/update/controller', item)
+}
+
+export const updateController = async (item) => {
+	const data = {
+		...item,
+		site_id: localStorage.getItem('site_id')
+	}
+	return await Post('controller/update', data)
+}
+
+export const deleteController = async (controller_id) => {
+	const data = {
+		controller_id,
+		site_id: localStorage.getItem('site_id')
+	}
+	return await Post('controller/delete', data)
 }
 
 export const fetchSiteHistory = async (item) => {
@@ -322,4 +368,20 @@ export const getAlerts = async(user_id) => {
 		user_id,
 	}
 	return await Post('auth/get/alerts', data)
+}
+
+export const getMyProfile = async (email) => {
+	const data = {
+		site_id: localStorage.getItem('site_id'),
+		email,
+	}
+	return await Post('auth/get/profile', data)
+}
+
+export const updateProfile = async (email) => {
+	const data = {
+		...item,
+		site_id: localStorage.getItem('site_id'),
+	}
+	return await Post('auth/update/profile', data)
 }

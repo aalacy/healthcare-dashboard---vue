@@ -36,7 +36,7 @@
         :loading="loading"
         :headers="headers"
         :items="controllers"
-        item-key="valve_id"
+        item-key="controller_id"
         :items-per-page="5"
         :search="search"
         class="custom-alert"
@@ -120,7 +120,7 @@
 
         <template v-slot:item.valve_status="{ item }">
           <v-chip label outlined :color="valveStatusColor(item.valve_status)" dark>
-            <div class="subtitle-2">{{ item.valve_status.toUpperCase() }}</div>
+            <div class="subtitle-2">{{ toUpper(item.valve_status) }}</div>
           </v-chip>
         </template>
 
@@ -132,7 +132,7 @@
 
         <template v-slot:item.error="{ item }">
           <v-chip label outlined :color="errorStatusColor(item.error)" dark>
-            <div class="subtitle-2">{{ item.error.toUpperCase() }}</div>
+            <div class="subtitle-2">{{ toUpper(item.error) }}</div>
           </v-chip>
         </template>
       </v-data-table>
@@ -458,6 +458,7 @@
         this.snackText = res.message
         this.snackColor = res.status
         this.snack = true
+        console.log(res.data)
         res.data.map(controller => {
           this.controllers.push({
             ...controller,

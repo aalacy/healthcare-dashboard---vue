@@ -136,7 +136,7 @@
                     <v-card-actions>
                       <v-spacer></v-spacer>
                       <v-btn color="secondary" text @click="close">Cancel</v-btn>
-                      <v-btn color="primary" text @click="addFls">Save</v-btn>
+                      <v-btn color="primary" text @click="actionController">Save</v-btn>
                     </v-card-actions>
                   </v-container>
                 </v-card-text>
@@ -175,7 +175,7 @@
                     text 
                     icon 
                     v-on="on"
-                    @click.stop="editFLS(item)"
+                    @click.stop="showEditDlg(item)"
                   >
                     <v-icon>mdi-pencil</v-icon>
                   </v-btn>
@@ -188,7 +188,7 @@
                     text 
                     icon 
                     v-on="on"
-                    @click.stop="deleteFLS(item)"
+                    @click.stop="delController(item)"
                   >
                     <v-icon>mdi-delete</v-icon>
                   </v-btn>
@@ -230,7 +230,7 @@
 
 <script>
     import { beautifyEmail } from '../../util'
-    import { Get, fetchAllControllers, createController, updateFLSListing } from '../../api'
+    import { deleteController, fetchAllControllers, createController, updateController } from '../../api'
 
     export default {
       name: 'Root',
@@ -324,7 +324,7 @@
           },
 
           configureFLS (item) {
-            this.$router.push({ path: `/root/configure/${item.fls_id}`})
+            this.$router.push({ path: `/configure/${item.controller_id}`})
           },
 
           async loadControllers() {
@@ -350,8 +350,36 @@
             }, 300)
           },
 
-          editFLS (item) {
-              this.defaultIndex = this.items.indexOf(item)
+          editController (item) {
+            const self = this
+            this.$dialog.confirm({
+              text: 'Do you really want to update the controller?',
+              title: 'Warning',
+              actions: {
+                false: 'No',
+                true: {
+                  color: 'red',
+                  text: 'Yes',
+                  handle: () => {
+                    self._updateController(item)
+                  }
+                }
+              }
+            })  
+          },
+
+          async _updateController(item) {
+            this.loading = true
+            const res = await updateController(item)
+            this.showSnack(res)
+            if (res.status == 'success') {
+              Object.assign(this.items[this.defaultIndex], this.editItem)
+            }
+            this.loading = false
+          },
+
+          showEditDlg (item) {
+            this.defaultIndex = this.items.indexOf(item)
             this.editItem = Object.assign({}, item)
             this.dialog = true
           },
@@ -362,7 +390,34 @@
             this.dialog = true
           },
 
-          async addFls () {
+          addController (item) {
+            const self = this
+            this.$dialog.confirm({
+              text: 'Do you really want to update the controller?',
+              title: 'Warning',
+              actions: {
+                false: 'No',
+                true: {
+                  color: 'red',
+                  text: 'Yes',
+                  handle: () => {
+                    self._createController(item)
+                  }
+                }
+              }
+            })  
+          },
+
+          async _createController (item) {
+            this.loading = true
+            const res = await createController(item)
+            item.controller_id = res.controller_id
+            this.items.push(item)
+            this.showSnack(res)
+            this.loading = false
+          },
+
+          async actionController () {
             this.$refs.form.validate()
             if (!this.valid) {
               return
@@ -372,24 +427,39 @@
               status: 'success' 
             }
             if (this.defaultIndex > -1) {
-                updateFLSListing(item)
+              this.editController(item)
             } else {
-              res = await createController(item)
-                // this.items.push(item)
+              this.addController(item)
             }
-            this.closeDialog()
+            // this.closeDialog()
+          },
 
+          delController (item) {
+            const self = this
+            this.$dialog.confirm({
+              text: 'Do you really want to remove this controller?',
+              title: 'Warning',
+              actions: {
+                false: 'No',
+                true: {
+                  color: 'red',
+                  text: 'Yes',
+                  handle: () => {
+                    self._delete(item)
+                  }
+                }
+              }
+            })  
+          },
+
+          async _delete(item) {
+            this.loading = true
+            const res = await deleteController(item.controller_id)
+            if (res == true) {
+              this.items.splice(index, 1)
+            } 
             this.showSnack(res)
-          },
-
-          deleteFLS (item) {
-            this.curItem = item
-            this.modal = true
-          },
-
-          _delete() {
-            this.items = this.items.filter(item => item.id != this.curItem.id)
-            this.modal = false
+            this.loading = false
           }
       }
   }
