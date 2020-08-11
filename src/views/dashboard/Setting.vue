@@ -226,18 +226,6 @@
           </v-card>
         </v-dialog>
 
-      <v-btn
-      v-if="root"
-      absolute
-      dark
-      fab
-      bottom
-      right
-      color="pink"
-      @click="returnToRoot"
-    >
-      <v-icon>mdi-send</v-icon>
-    </v-btn>
   </v-container>
 </template>
 
@@ -431,7 +419,7 @@
             this.loading = true
             const res = await createController(item)
             item.controller_id = res.controller_id
-            this.items.push(item)
+            // this.items.push(item)
             this.showSnack(res)
             this.loading = false
           },

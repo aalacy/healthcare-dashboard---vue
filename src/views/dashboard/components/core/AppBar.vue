@@ -59,7 +59,7 @@
         <v-list class="toolbar-menu">
           <v-subheader class="display-1">Alert Stormwater Control Panel</v-subheader>
           <v-list-item-group v-model="selected" color="primary">
-            <v-list-item @click="goto(item.name)" v-for="item in computedItems" :key="item.name">
+            <v-list-item @click="goto(item.name, index)" v-for="(item, index) in computedItems" :key="item.name">
               <v-list-item-icon>
                 <v-icon v-text="item.icon"></v-icon>
               </v-list-item-icon>
@@ -188,8 +188,6 @@
 
     mounted () {
      this.currentRoute = this.$router.history.current.name
-
-     console.log(this.root())
     },
 
     methods: {
@@ -228,7 +226,7 @@
       },
 
       async goto (name, index=-1) {
-        if (name = 'Login') {
+        if (name == 'Login') {
           this.clearStorage()
         }
         if (name != this.currentRoute) {
