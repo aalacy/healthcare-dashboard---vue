@@ -258,15 +258,16 @@
                       cols="12"
                       md="6"
                         >
-                          <v-text-field
-                            type="number"
+                          <v-select
                             v-model="config.web_chan"
                             :loading="loading"
-                            :rules="[rules.required, rules.chan]"
+                            :items="WBChannels"
+                            :rules="[rules.required]"
                             hide-details="auto"
+                            chips
                             class="mb-5"
                             label="WB Chan"
-                            hint="Weather band receiver (min 1, max 7)"
+                            hint="Weather band receiver channel"
                             required
                           />
                         </v-col>
@@ -407,7 +408,7 @@
 </template>
 
 <script>
-    import { beautifyEmail } from '../../util'
+    import { beautifyEmail, WBChannels } from '../../util'
     import { 
       clearCommands, 
       latestCommand, 
@@ -778,6 +779,12 @@
           fips34Valid: true,
           eventCodeValid: true,
       }),
+
+      computed: {
+        WBChannels() {
+          return WBChannels()
+        }
+      },
 
       mounted() {
         this.controller_id = this.$router.history.current.params.id

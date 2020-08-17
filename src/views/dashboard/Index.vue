@@ -133,7 +133,7 @@
     }
   }
 
-  .v-menu__content--fixed.menuable__content__active {
+  .v-menu__content--fixed.menuable__content__active.toolbar-menu {
     position: absolute;
     width: 100%;
     max-width: 100%;

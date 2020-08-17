@@ -112,10 +112,10 @@
             text: 'Owner Email',
             value: 'owner'
           },
-          {
-            text: 'Owner Phone',
-            value: 'phone'
-          },
+          // {
+          //   text: 'Owner Phone',
+          //   value: 'phone'
+          // },
           {
             text: '# of Controllers',
             value: 'controllers'

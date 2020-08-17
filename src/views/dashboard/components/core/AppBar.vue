@@ -41,35 +41,38 @@
           small
         ><v-icon>{{ item.icon }}</v-icon>{{ item.title }}</v-btn>
       </v-toolbar-items>
-      <v-menu 
-        class="hidden-md-and-up"
-        transition="slide-y-transition"
-        bottom
-      >
-        <template v-slot:activator="{ on }">
-          <v-btn
-            class="hidden-md-and-up"
-            icon
-            large
-            v-on="on"
-          >
-            <v-icon>mdi-menu</v-icon>
-          </v-btn>
-        </template>
-        <v-list class="toolbar-menu">
-          <v-subheader class="display-1">Alert Stormwater Control Panel</v-subheader>
-          <v-list-item-group v-model="selected" color="primary">
-            <v-list-item @click="goto(item.name, index)" v-for="(item, index) in computedItems" :key="item.name">
-              <v-list-item-icon>
-                <v-icon v-text="item.icon"></v-icon>
-              </v-list-item-icon>
-              <v-list-item-content>
-                <v-list-item-action-text  class="heading" v-text="item.title"></v-list-item-action-text>
-               </v-list-item-content>
-            </v-list-item>   
-          </v-list-item-group>
-        </v-list>
-      </v-menu>
+      <div class="dropdown-menubar">
+        <v-menu 
+          class="hidden-md-and-up "
+          content-class="toolbar-menu"
+          transition="slide-y-transition"
+          bottom
+        >
+          <template v-slot:activator="{ on }">
+            <v-btn
+              class="hidden-md-and-up"
+              icon
+              large
+              v-on="on"
+            >
+              <v-icon>mdi-menu</v-icon>
+            </v-btn>
+          </template>
+          <v-list class="toolbar-menu">
+            <v-subheader class="display-1">Alert Stormwater Control Panel</v-subheader>
+            <v-list-item-group v-model="selected" color="primary">
+              <v-list-item @click="goto(item.name, index)" v-for="(item, index) in computedItems" :key="item.name">
+                <v-list-item-icon>
+                  <v-icon v-text="item.icon"></v-icon>
+                </v-list-item-icon>
+                <v-list-item-content>
+                  <v-list-item-action-text  class="heading" v-text="item.title"></v-list-item-action-text>
+                 </v-list-item-content>
+              </v-list-item>   
+            </v-list-item-group>
+          </v-list>
+        </v-menu>
+      </div>
     </v-app-bar>
   <v-snackbar
     v-model="snackbar"
@@ -153,7 +156,7 @@
       menu: [
         { icon: 'mdi-account-group', title: 'Users', name: 'Users', is_root: true },
         { icon: 'mdi-account-group', title: 'Root', name: 'Root', is_root: true },
-        { icon: 'mdi-file-cog', title: 'Location', name: 'Sites' },
+        { icon: 'mdi-file-cog', title: 'Sites', name: 'Sites' },
         { icon: 'mdi-account-group-outline', title: 'Staff', name: 'Staff' },
         { icon: 'mdi-cog', title: 'Configure', name: 'Configure'},
         { icon: 'mdi-account-outline', title: 'Customer', name: 'My Profile', is_only_admin:true },

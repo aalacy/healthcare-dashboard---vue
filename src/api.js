@@ -1,5 +1,6 @@
 import axios from 'axios'
 import moment from 'moment'
+import jwtDecode from 'jwt-decode'
 
 // export const BASE_API = process.env.BASE_API
 export const BASE_API = 'http://localhost:5000'
@@ -7,6 +8,18 @@ export const BASE_API = 'http://localhost:5000'
 
 const getAuthToken = () => {
 	return localStorage.getItem('token')
+}
+
+const getEmail = () => {
+	return jwtDecode(localStorage.getItem('token')).email
+}
+
+export const getRole = () => {
+	return jwtDecode(localStorage.getItem('token')).role.toLowerCase()
+}
+
+export const isAdmin = () => {
+	return getRole() == 'admin' || getRole() == 'root'
 }
 
 /* 
@@ -28,6 +41,16 @@ export const Call = async (url, method, data={}) => {
 		})
 	} catch(e) {
 		res = e.response
+		if (e.response.status == 401) {
+			// authentication token is expired.
+			localStorage.removeItem('token')
+			localStorage.removeItem('custom')
+			localStorage.removeItem('jwt')
+			localStorage.removeItem('roottoken')
+			localStorage.removeItem('email')
+			localStorage.removeItem('site_id')
+			location.href = '/auth/login'
+		}
 	}
 	return res.data
 }
@@ -44,159 +67,6 @@ export const Put = async (url, data) => {
 	return await Call(url, 'PUT', data)
 }
 
-// mock data
-let flsListing = [
-	{
-		id: 1,
-		username: 'admin',
-		fls_id: '0000000001',
-		controller_location: 'test1',
-		controller_description: 'test1',
-		controller_type: 'test1',
-		connection_interval: '1',
-		event_name: '',
-	},
-	{
-		id: 2,
-		username: 'bradcole',
-		fls_id: '16777200',
-		controller_location: 'Lake Johnson',
-		controller_description: 'Valve',
-		controller_type: 'Pond',
-		connection_interval: '22',
-		event_name: '',
-		maintain_connnection: 'Maintain connection',
-		sent_on: '2020-05-16 09:57:18',
-		received_on: '2020-05-16 09:57:18',
-	}
-]
-
-const flsCommandsHistories = [
-	{
-		id: 1,
-		type: 'maintain',
-		fls_id: '0000000001',
-		maintain_connection: 'Maintain connection',
-		sent_on: '2020-02-16 09:57:18',
-		received_on: '2020-02-16 09:57:18',
-		status: 'Waiting'
-	},
-	{
-		id: 2,
-		fls_id: '0000000001',
-		type: 'config',
-		conn_period: 20,
-		stuck_valve: 10,
-		WB_chan: 1,
-		RSSI: 0,
-		bat_ov: 30,
-		bat_uv: 50,
-		sent_on: '2020-03-16 09:57:18',
-		received_on: '2020-03-16 09:57:18',
-		status: 'Cancelled'
-	},
-	{
-		id: 3,
-		fls_id: '16777200',
-		type: 'event_code',
-		event_code: 'FFA - Flash Flood Watch',
-		action: 'Notify and Energize Relay',
-		timeout: 10,
-		relays: 'Both Relays 1 & 2',
-		sent_on: '2020-04-16 09:57:18',
-		received_on: '2020-04-16 09:57:18',
-		status: 'Sent'
-	}
-]
-
-const smsConfigs = [
-	{
-		event: 'Costal Flood Watch',
-		none: false,
-		notify_only: true,
-		notify_and_open_valve: false,
-		notify_and_partial_open_valve: true,
-		notify_valve_closes: false
-	},
-	{
-		event: 'Costal Flood Warning',
-		none: false,
-		notify_only: true,
-		notify_and_open_valve: false,
-		notify_and_partial_open_valve: false,
-		notify_valve_closes: false
-	},
-	{
-		event: 'Flash Flood Watch',
-		none: false,
-		notify_only: true,
-		notify_and_open_valve: false,
-		notify_and_partial_open_valve: false,
-		notify_valve_closes: false
-	},
-	{
-		event: 'Flash Flood Warning',
-		none: true,
-		notify_only: true,
-		notify_and_open_valve: false,
-		notify_and_partial_open_valve: true,
-		notify_valve_closes: true
-	},
-	{
-		event: 'Flood Watch',
-		none: false,
-		notify_only: true,
-		notify_and_open_valve: false,
-		notify_and_partial_open_valve: false,
-		notify_valve_closes: false
-	},
-	{
-		event: 'Flood Warning',
-		none: false,
-		notify_only: true,
-		notify_and_open_valve: false,
-		notify_and_partial_open_valve: true,
-		notify_valve_closes: true
-	},
-	{
-		event: 'Hurricane Watch',
-		none: false,
-		notify_only: false,
-		notify_and_open_valve: false,
-		notify_and_partial_open_valve: true,
-		notify_valve_closes: false
-	},
-	{
-		event: 'Hurricane Warning',
-		none: false,
-		notify_only: true,
-		notify_and_open_valve: true,
-		notify_and_partial_open_valve: true,
-		notify_valve_closes: false
-	},
-	{
-		event: 'Severe Thunderstorm Watch',
-		none: false,
-		notify_only: true,
-		notify_and_open_valve: true,
-		notify_and_partial_open_valve: true,
-		notify_valve_closes: false
-	},
-	{
-		event: 'Severe Thunderstorm Warning',
-		none: false,
-		notify_only: true,
-		notify_and_open_valve: false,
-		notify_and_partial_open_valve: true,
-		notify_valve_closes: true
-	},
-]
-
-// mock server
-
-export const getSMSConfigs = (user_id) => {
-	return smsConfigs;
-}
 
 export const submitCommand = async (command) => {
 	const data = {
@@ -358,14 +228,22 @@ export const removeStaff = async(user_id) => {
 	return await Post('sites/delete', data)
 }
 
+export const addStaff = async(item) => {
+	const data = {
+		site_id: localStorage.getItem('site_id'),
+		...item,
+	}
+	return await Post('auth/create', data)
+}
+
 /*
 *	User profile
 */
 
-export const getAlerts = async(user_id) => {
+export const getAlerts = async(email) => {
 	const data = {
 		site_id: localStorage.getItem('site_id'),
-		user_id,
+		email,
 	}
 	return await Post('auth/get/alerts', data)
 }
@@ -375,13 +253,31 @@ export const getMyProfile = async (email) => {
 		site_id: localStorage.getItem('site_id'),
 		email,
 	}
-	return await Post('auth/get/profile', data)
+	return await Post('sites/get/user', data)
 }
 
-export const updateProfile = async (email) => {
+export const updateProfile = async (item) => {
 	const data = {
 		...item,
 		site_id: localStorage.getItem('site_id'),
 	}
 	return await Post('auth/update/profile', data)
+}
+
+export const updatePassword = async (item) => {
+	const data = {
+		...item,
+		email: getEmail(),
+		site_id: localStorage.getItem('site_id'),
+	}
+	return await Post('auth/update/password', data)
+}
+
+export const updateAlert = async (item) => {
+	const data = {
+		...item,
+		email: getEmail(),
+		site_id: localStorage.getItem('site_id'),
+	}
+	return await Post('auth/update/alerts', data)
 }

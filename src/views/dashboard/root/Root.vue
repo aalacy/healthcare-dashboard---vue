@@ -146,6 +146,10 @@
             <span>Edit Site</span>
           </v-tooltip>
         </template>
+
+        <template v-slot:item.controllers="{ item }">
+          <span>{{ item.controllers.length }}</span>
+        </template>
       </v-data-table>
     </v-card>
 
@@ -219,17 +223,17 @@
             value: 'owner'
           },
           {
-            text: 'Phone',
-            value: 'phone'
+            text: '# of Controllers',
+            value: 'controllers'
           },
           {
             text: 'Location',
             value: 'location'
           },
-          {
-            text: 'Status',
-            value: 'account_status'
-          },
+          // {
+          //   text: 'Status',
+          //   value: 'account_status'
+          // },
           {
             text: 'Action',
             value: 'action',

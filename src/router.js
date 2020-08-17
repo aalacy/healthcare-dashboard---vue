@@ -130,8 +130,6 @@ router.beforeEach((to, from, next) => {
               params: { nextUrl: to.fullPath }
           })
         } else {
-          console.log(to)
-            
           if (to.meta.is_root) {
             let user = {}
             try {

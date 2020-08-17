@@ -4,141 +4,161 @@
     fluid
     tag="section"
   >
-    <base-material-card icon="mdi-account-outline" color="secondary">
-      <template v-slot:after-heading>
-        <div class="font-weight-light card-title mt-2">
-          Update Profile
-         
-        </div>
-      </template>
+    <v-row>
+      <v-col cols="12" md="8">
+        <base-material-card icon="mdi-account-outline" color="secondary">
+          <template v-slot:after-heading>
+            <div class="font-weight-light card-title mt-2">
+              Update Profile
+            </div>
+          </template>
 
-      <v-form
-        ref="form"
-        v-model="valid"
-        class="text-center pa-5"
-      >
-        <v-row>
-            <v-text-field
-              v-model="form.first"
-              :loading="loading"
-              :rules="[rules.required]"
-              hide-details="auto"
-              label="First Name"
-              prepend-icon="mdi-account-outline"
-              required
-            />
-            <v-text-field
-              v-model="form.last"
-              :loading="loading"
-              :rules="[rules.required]"
-              hide-details="auto"
-              class="mb-5"
-              label="Last Name"
-              prepend-icon="mdi-account-outline"
-              required
-            />
-            <v-menu
-              v-model="dateMenu"
-              :close-on-content-click="false"
-              :nudge-right="40"
-              transition="scale-transition"
-              offset-y
-              min-width="290px"
-            >
-              <template v-slot:activator="{ on }">
+          <v-form
+            ref="form"
+            v-model="valid"
+            class="text-center pa-5"
+          >
+            <v-row>
                 <v-text-field
-                  ref="dob"
-                  v-model="form.dob"
-                  label="Date"
-                  readonly
+                  v-model="form.first"
+                  :loading="loading"
                   :rules="[rules.required]"
-                  v-on="on"
+                  hide-details="auto"
+                  label="First Name"
+                  prepend-icon="mdi-account-outline"
+                  required
+                />
+                <v-text-field
+                  v-model="form.last"
+                  :loading="loading"
+                  :rules="[rules.required]"
+                  hide-details="auto"
+                  class="mb-5"
+                  label="Last Name"
+                  prepend-icon="mdi-account-outline"
+                  required
+                />
+                <v-menu
+                  v-model="dateMenu"
+                  :close-on-content-click="false"
+                  :nudge-right="40"
+                  transition="scale-transition"
+                  offset-y
+                  min-width="290px"
                 >
-                  <v-icon slot="prepend" >mdi-calendar</v-icon>
-                </v-text-field>
-              </template>
-              <v-date-picker v-model="form.dob"  @input="dateMenu = false"></v-date-picker>
-            </v-menu>
+                  <template v-slot:activator="{ on }">
+                    <v-text-field
+                      ref="dob"
+                      v-model="form.dob"
+                      label="Date"
+                      readonly
+                      :rules="[rules.required]"
+                      v-on="on"
+                    >
+                      <v-icon slot="prepend" >mdi-calendar</v-icon>
+                    </v-text-field>
+                  </template>
+                  <v-date-picker v-model="form.dob"  @input="dateMenu = false"></v-date-picker>
+                </v-menu>
 
-            <v-text-field
-              v-model="form.email"
-              :rules="[rules.required, rules.email]"
-              :loading="loading"
-              class="mb-5"
-              hide-details="auto"
-              label="Please enter your email address."
-              prepend-icon="mdi-email-outline"
-              @keyup.enter="submit"
-              required
-            />
-          </v-row>
-          <v-row>
-            <v-text-field
-              type="number"
-              v-model="form.phone"
-              :rules="[rules.required]"
-              :loading="loading"
-              class="mb-5"
-              hide-details="auto"
-              label="Please enter your phone number."
-              prepend-icon="mdi-phone-outline"
-              @keyup.enter="submit"
-              required
-            />
+                <v-text-field
+                  v-model="form.email"
+                  :rules="[rules.required, rules.email]"
+                  :loading="loading"
+                  class="mb-5"
+                  readonly
+                  hide-details="auto"
+                  label="Please enter your email address."
+                  prepend-icon="mdi-email-outline"
+                  @keyup.enter="submit"
+                  required
+                />
+              </v-row>
+              <v-row>
+                <v-text-field
+                  type="number"
+                  v-model="form.phone"
+                  :rules="[rules.required]"
+                  :loading="loading"
+                  class="mb-5"
+                  hide-details="auto"
+                  label="Please enter your phone number."
+                  prepend-icon="mdi-phone-outline"
+                  @keyup.enter="submit"
+                  required
+                />
 
-            <v-text-field
-              v-model="form.oldpassword"
-              :rules="[rules.required]"
-              :loading="loading"
-              :append-icon="value ? 'mdi-eye' : 'mdi-eye-off'"
-              @click:append="() => (value = !value)"
-              :type="value ? 'password' : 'text'"
-              hide-details="auto"
-              class="mb-5"
-              label="Old password"
-              prepend-icon="mdi-lock-outline"
-              required
-            />
 
-            <v-text-field
-              type="password"
-              v-model="form.password"
-              :rules="[rules.required]"
+             <!--    <v-text-field
+                  v-model="form.site"
+                  :loading="loading"
+                  class="mb-5"
+                  hide-details="auto"
+                  label="Site"
+                  prepend-icon="mdi-web"
+                  @keyup.enter="submit"
+                  required
+                /> -->
+            </v-row>
+            <v-btn
               :loading="loading"
-              :append-icon="value ? 'mdi-eye' : 'mdi-eye-off'"
-              @click:append="() => (value = !value)"
-              :type="value ? 'password' : 'text'"
-              hide-details="auto"
-              class="mb-5"
-              label="New password"
-              prepend-icon="mdi-lock-outline"
-              required
-            />
+              color="primary"
+              class="display-1"
+              :diabled="!valid"
+              @click="submit"
+            >
+              Update
+            </v-btn>
+          </v-form>
+        </base-material-card>
+      </v-col>
+      <v-col cols="12" md="4">
+        <v-card class="py-4">
+          <v-card-title>
+            Update Password
+          </v-card-title>
+          <v-card-text>
+            <v-form
+              ref="form"
+              v-model="pwdValid"
+              class="text-center pa-5"
+            >
+              <v-text-field
+                v-model="form.old_password"
+                :rules="[rules.required]"
+                :loading="loading"
+                :append-icon="value ? 'mdi-eye' : 'mdi-eye-off'"
+                @click:append="() => (value = !value)"
+                :type="value ? 'password' : 'text'"
+                hide-details="auto"
+                class="mb-5"
+                label="Old password"
+                prepend-icon="mdi-lock-outline"
+                required
+              />
 
-         <!--    <v-text-field
-              v-model="form.site"
-              :loading="loading"
-              class="mb-5"
-              hide-details="auto"
-              label="Site"
-              prepend-icon="mdi-web"
-              @keyup.enter="submit"
-              required
-            /> -->
-        </v-row>
-        <v-btn
-          :loading="loading"
-          color="primary"
-          class="display-1"
-          :diabled="!valid"
-          @click="submit"
-        >
-          Update
-        </v-btn>
-      </v-form>
-    </base-material-card>
+              <v-text-field
+                type="password"
+                v-model="form.new_password"
+                :rules="[rules.required]"
+                :loading="loading"
+                :append-icon="value ? 'mdi-eye' : 'mdi-eye-off'"
+                @click:append="() => (value = !value)"
+                :type="value ? 'password' : 'text'"
+                hide-details="auto"
+                class="mb-5"
+                label="New password"
+                prepend-icon="mdi-lock-outline"
+                required
+              />
+              <v-btn class="primary" @click="submitPassword">Update</v-btn>
+            </v-form>
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
     
-    <v-card class="pa-3">
+    <v-card v-if="shouldShow" class="pa-3">
       <v-card-title class="mb-7">
         SMS Alert Configuration
       </v-card-title>
@@ -147,13 +167,13 @@
           <v-col cols="12" md="8">
             <v-data-table
               dense
-                :loading="loading"
-                :headers="configHeaders"
-                :items="configs"
-                item-key="event"
-                hide-default-footer
-                class="custom-alert"
-              > 
+              :loading="loading"
+              :headers="configHeaders"
+              :items="configs"
+              item-key="event"
+              hide-default-footer
+              class="custom-alert"
+            > 
                 <template v-slot:item.none="{ item }">
                   <v-checkbox
                   v-model="item.none"
@@ -195,15 +215,15 @@
             <v-col cols="12" md="4">
               <v-sheet elevation="1"  class="pa-3">
                 <v-checkbox
-                  v-model="notifyEmail"
+                  v-model="notify_via_email"
                   label="Notify via email"
                 ></v-checkbox>
                 <v-checkbox
-                  v-model="notifyPush"
+                  v-model="notify_via_text_message"
                   label="Notify via text message"
                 ></v-checkbox>
 
-                <v-btn class="success" @class="updateNotiy">Update</v-btn>
+                <v-btn class="success" @click="updateNotiy">Update</v-btn>
               </v-sheet>
             </v-col>
           </v-row>
@@ -229,7 +249,7 @@
 
 <script>
   import jwtDecode from 'jwt-decode'
-  import { getAlerts, getMyProfile, updateProfile } from '../../../api'
+  import { getAlerts, getMyProfile, updateProfile, updateAlert, updatePassword, isAdmin } from '../../../api'
 
   export default {
     name: "UserProfile",
@@ -287,8 +307,9 @@
           },
         ],
         valid: true,
-        notifyEmail: false,
-        notifyPush: false,
+        pwdValid: true,
+        notify_via_email: false,
+        notify_via_text_message: false,
         rules: {
           required: value => {
             return !!value || 'This field is required.'
@@ -305,24 +326,57 @@
       }
     },
 
+    computed: {
+      shouldShow() {
+        return isAdmin()
+      }
+    },
+
     mounted () {
+      this.loading = true
+      this.getAlertData()
       this.getUserData()
+      this.loading = false
     },
 
     methods: {
-      fillUser () {
+      async getUserData () {
+        const email = jwtDecode(localStorage.getItem('token')).email
+        const res = await getMyProfile(email)
+        this.snackbar_message = res.message
+        this.snackbar_color = res.status
+        if (res.status == 'success') {
+          this.form = res.user
+        } else {
+          this.snackbar = true
+        }
       },
 
-      async getUserData () {
-        this.loading = true
+      async getAlertData () {
         const email = jwtDecode(localStorage.getItem('token')).email
         const res = await getAlerts(email)
         this.snackbar_message = res.message
         this.snackbar_color = res.status
-        this.snackbar = true
         if (res.status == 'success') {
           this.configs = res.data.options
+          this.notify_via_email = res.data.notify_via_email
+          this.notify_via_text_message = res.data.notify_via_text_message
+        } else {
+          this.snackbar = true
         }
+      },
+
+      async updateNotiy() {
+        this.loading = true
+        const data = {
+          notify_via_email: this.notify_via_email,
+          notify_via_text_message: this.notify_via_text_message,
+          options: this.configs
+        }
+        const res = await updateAlert(data)
+        this.snackbar_message = res.message
+        this.snackbar_color = res.status
+        this.snackbar = true
         this.loading = false
       },
 
@@ -349,8 +403,38 @@
         this.snackbar_message = res.message
         this.snackbar_color = res.status
         this.snackbar = true
+        if (res.status == 'success') {
+          localStorage.setItem('token', res.auth_token)
+        }
         this.loading = false
-      }
+      },
+
+      async submitPassword() {
+        const self = this
+        this.$dialog.confirm({
+          text: 'Do you really want to update the password?',
+          title: 'Warning',
+          actions: {
+            false: 'No',
+            true: {
+              color: 'red',
+              text: 'Yes',
+              handle: () => {
+                self._udpatePassword()
+              }
+            }
+          }
+        })  
+      },
+
+      async _udpatePassword() {
+        this.loading = true
+        const res = await updatePassword(this.form)
+        this.snackbar_message = res.message
+        this.snackbar_color = res.status
+        this.snackbar = true
+        this.loading = false
+      },
     }
   }
 </script>

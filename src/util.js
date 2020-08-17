@@ -132,3 +132,15 @@ export const hexEncode = (str) =>  {
 
   return result.slice(1, result.length-2)
 }
+
+export const WBChannels = () => {
+  return [
+    '162.400',
+    '162.425',
+    '162.450',
+    '162.475',
+    '162.500', 
+    '162.525', 
+    '162.550'
+  ]
+}

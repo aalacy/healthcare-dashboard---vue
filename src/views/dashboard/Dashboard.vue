@@ -69,7 +69,7 @@
             <span>Show History</span>
           </v-tooltip>
         </template>
-        <template v-slot:item.open_value="{ item }">
+        <template v-slot:item.open_valve="{ item }">
           <v-tooltip bottom>
             <template v-slot:activator="{ on }">
               <v-btn 
@@ -85,20 +85,20 @@
             <span>Open Valve</span>
           </v-tooltip>
         </template>
-        <template v-slot:item.partial_open_value="{ item }">
+        <template v-slot:item.partial_close_valve="{ item }">
           <v-tooltip bottom>
             <template v-slot:activator="{ on }">
               <v-btn 
                 text 
                 icon 
                 v-on="on"
-                :disabled="disabledControl(item, 'partial opened')"
+                :disabled="disabledControl(item, 'partial_opened')"
                 @click.stop="partialOpenValve(item)"
               >
                 <v-icon large color="yellow darken-4">mdi-lock-open-outline</v-icon>
               </v-btn>
             </template>
-            <span>Partial Open Valve</span>
+            <span>Partial Close Valve</span>
           </v-tooltip>
         </template>
         <template v-slot:item.close_valve="{ item }">
@@ -244,12 +244,12 @@
             align: 'center',
             width: 110
           },
-          {
-            text: 'Description',
-            value: 'desc',
-            align: 'center',
-            width: 130
-          },
+          // {
+          //   text: 'Description',
+          //   value: 'desc',
+          //   align: 'center',
+          //   width: 130
+          // },
           {
             text: 'Type',
             value: 'type',
@@ -264,14 +264,14 @@
           },
           {
             text: 'Open Valve',
-            value: 'open_value',
+            value: 'open_valve',
             align: 'center',
             sortable: false,
             width: 90
           },
           {
-            text: 'Partial Open Valve',
-            value: 'partial_open_value',
+            text: 'Partial Close Valve',
+            value: 'partial_close_valve',
             align: 'center',
             sortable: false,
             width: 120
@@ -301,38 +301,38 @@
             align: 'center',
             width: 120
           },
-          {
-            text: 'NWS Signal Frequency',
-            value: 'nws_signal',
-            align: 'center',
-            width: 130
-          },
+          // {
+          //   text: 'NWS Signal Frequency',
+          //   value: 'nws_signal',
+          //   align: 'center',
+          //   width: 130
+          // },
           {
             text: 'Connection Inverval (min)',
             value: 'interval',
             align: 'center',
             width: 140
           },
+          // {
+          //   text: 'Error',
+          //   value: 'error_status',
+          //   align: 'center',
+          //   width: 80
+          // },
           {
-            text: 'Error',
-            value: 'error_status',
-            align: 'center',
-            width: 80
-          },
-          {
-            text: 'Last Test',
-            value: 'last_test_date',
+            text: 'Most Recent Connection',
+            value: 'most_recent_connection',
             align: 'center',
             width: 110
           },
           {
-            text: 'Water Elevation',
+            text: 'Current Water Elevation',
             value: 'water_elevation',
             align: 'center',
             width: 110
           },
           {
-            text: 'Minimum Elevation',
+            text: 'Minimum Water Elevation',
             value: 'minimum_elevation',
             align: 'center',
             width: 110
@@ -458,7 +458,6 @@
         this.snackText = res.message
         this.snackColor = res.status
         this.snack = true
-        console.log(res.data)
         res.data.map(controller => {
           this.controllers.push({
             ...controller,
@@ -488,7 +487,7 @@
 
       async partialOpenValve (item) {
         this.loading = true
-        item.valve_status = 'partial opened'
+        item.valve_status = 'partial_opened'
         const res = await updateController(item)
         this.loading = false
       },

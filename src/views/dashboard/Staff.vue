@@ -20,9 +20,9 @@
           hide-details
         ></v-text-field>
         <v-dialog v-model="dialog" max-width="720px">
-        <!--   <template v-slot:activator="{ on }">
+          <template v-if="visibleAdd" v-slot:activator="{ on }">
             <v-btn color="secondary" dark class="mb-2" v-on="on"><v-icon size="16" left dark>mdi-plus</v-icon>Add Staff</v-btn>
-          </template> -->
+          </template>
           <v-card>
             <v-card-title>
               <span class="headline">{{ formTitle }}</span>
@@ -80,7 +80,7 @@
                           <v-text-field
                             ref="dob"
                             v-model="editItem.dob"
-                            label="Date"
+                            label="Date of Birthday"
                             readonly
                             :rules="[rules.required]"
                             v-on="on"
@@ -134,9 +134,9 @@
                         v-model="editItem.password"
                         :rules="[rules.required]"
                         :loading="loading"
-                        :append-icon="editItem.password ? 'mdi-eye' : 'mdi-eye-off'"
+                        :append-icon="value ? 'mdi-eye' : 'mdi-eye-off'"
                         @click:append="() => (value = !value)"
-                        :type="editItem.password ? 'password' : 'text'"
+                        :type="value ? 'password' : 'text'"
                         hide-details="auto"
                         class="mb-5"
                         label="Password"
@@ -149,15 +149,30 @@
                       cols="12"
                       md="6"
                     >
+                      <v-select
+                        v-model="editItem.status"
+                        :loading="loading"
+                        :items="statusItems"
+                        hide-details="auto"
+                        chips
+                        small
+                        class="mb-5"
+                        label="Status"
+                        prepend-icon="mdi-application"
+                      />
+                    </v-col>
+                    <v-col
+                      cols="12"
+                      md="6"
+                    >
                       <v-text-field
-                        type="password"
-                        v-model="editItem.confirmpassword"
-                        :rules="[rules.required, rules.confirm]"
+                        v-model="editItem.role"
                         :loading="loading"
                         hide-details="auto"
                         class="mb-5"
-                        label="Confirm Password"
-                        prepend-icon="mdi-lock-outline"
+                        readonly
+                        label="Role"
+                        prepend-icon="mdi-application"
                         required
                       />
                     </v-col>
@@ -191,7 +206,7 @@
             <div class="subtitle-2">{{ item.active ? 'Approved' : 'Waiting' }}</div>
           </v-chip>
         </template>
-        <template v-slot:item.action="{ item }">
+        <template v-if="visibleAdd" v-slot:item.action="{ item }">
           <v-tooltip bottom>
             <template v-slot:activator="{ on }">
               <v-btn 
@@ -255,13 +270,14 @@
 
 <script>
   import { beautifyEmail } from '../../util'
-  import { getSiteUsers, updateMemberStatus, removeStaff } from '../../api'
+  import { getSiteUsers, updateMemberStatus, removeStaff, addStaff, isAdmin } from '../../api'
 
   export default {
     name: 'Owners',
 
     data: () => ({
       loading: false,
+      value: true,
       search: '',
       snackbar: false,
       snackColor: '',
@@ -311,7 +327,14 @@
       users: [
       ],
       defaultIndex: -1,
-      editItem: {},
+      editItem: {
+        status: true,
+        role: 'member'
+      },
+      statusItems: [
+        { text: 'Approved', value: true },
+        { text: 'Waiting', value: false },
+      ],
       rules: {
           required: value => {
             return !!value || 'This field is required.'
@@ -335,6 +358,9 @@
       formTitle () {
         return this.defaultIndex === -1 ? 'Add Staff' : 'Edit Staff'
       },
+      visibleAdd () {
+        return isAdmin()
+      }
     },
 
     methods: {
@@ -360,8 +386,8 @@
         this.loading = "secondary"
         const res = await getSiteUsers()
         if (res.status != 'success') {
-          this.snackText = res.data.message
-          this.snackColor = res.data.status
+          this.snackText = res.message
+          this.snackColor = res.status
           this.snackbar = true
         } else {
           this.users = res.users
@@ -396,13 +422,14 @@
       },
 
       async _deleteStaff(item) {
+        console.log(item)
         this.loading = true
-        const res = await removeStaff(item.site_id)
+        const res = await removeStaff(item.user_id)
         this.snackText = res.message
         this.snackColor = res.status
         this.snackbar = true
         if (res.status == 'success') {
-          this.users = this.users.filter(user => user.site_id != item.site_id)
+          this.users = this.users.filter(user => user.user_id != item.user_id)
         }
         this.loading = false
       },
@@ -432,7 +459,13 @@
       async addStaff() {
         this.$refs.form.validate()
         if (this.valid) {
-
+          const res = await addStaff(this.editItem)
+          this.snackText = res.message
+          this.snackColor = res.status
+          this.snackbar = true
+          if (res.status == 'success') {
+            this.users.push(this.editItem)
+          }
         }
       },
 

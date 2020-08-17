@@ -9,7 +9,7 @@
       class="px-5 py-3"
     >
       <v-card-title>
-            Valves
+            Controllers
             <v-spacer></v-spacer>
             <v-text-field
               v-model="search"
@@ -19,7 +19,7 @@
               single-line
               hide-details
             ></v-text-field>
-              <v-btn @click="addValve" color="secondary" dark class="mb-2" ><v-icon size="16" left dark>mdi-plus</v-icon>Add Valve</v-btn>
+              <v-btn @click="addValve" color="secondary" dark class="mb-2" ><v-icon size="16" left dark>mdi-plus</v-icon>Add</v-btn>
             <v-dialog v-model="dialog" max-width="720px">
               <v-card>
                 <v-card-title>
@@ -59,7 +59,7 @@
                             :loading="loading"
                             class="mb-5"
                             hide-details="auto"
-                            label="Enter City"
+                            label="City"
                             prepend-icon="mdi-google-maps"
                             @keyup.enter="submit"
                             required
@@ -76,7 +76,7 @@
                             :loading="loading"
                             class="mb-5"
                             hide-details="auto"
-                            label="Enter State"
+                            label="State"
                             prepend-icon="mdi-google-maps"
                             @keyup.enter="submit"
                             required
@@ -93,7 +93,7 @@
                             :loading="loading"
                             class="mb-5"
                             hide-details="auto"
-                            label="Enter Description"
+                            label="Description"
                             prepend-icon="mdi-details"
                             @keyup.enter="submit"
                             required
@@ -102,6 +102,7 @@
                         <v-col
                           cols="12"
                           md="6"
+                          v-if="false"
                         >
                           <v-text-field
                             v-model="editItem.type"
@@ -109,7 +110,7 @@
                             :loading="loading"
                             class="mb-5"
                             hide-details="auto"
-                            label="Enter Type"
+                            label="Type"
                             prepend-icon="mdi-call-merge"
                             @keyup.enter="submit"
                             required
@@ -120,12 +121,64 @@
                           md="6"
                         >
                           <v-text-field
+                            type="number"
                             v-model="editItem.interval"
                             :rules="[rules.required]"
                             :loading="loading"
                             class="mb-5"
                             hide-details="auto"
-                            label="Enter Interval"
+                            label="Connection interval (min)"
+                            prepend-icon="mdi-call-merge"
+                            @keyup.enter="submit"
+                            required
+                          />
+                        </v-col>
+                        <v-col
+                          cols="12"
+                          md="6"
+                        >
+                          <v-text-field
+                            type="number"
+                            v-model="editItem.open_duration"
+                            :rules="[rules.required]"
+                            :loading="loading"
+                            class="mb-5"
+                            hide-details="auto"
+                            label="Valve Open Time (min)"
+                            prepend-icon="mdi-call-merge"
+                            @keyup.enter="submit"
+                            required
+                          />
+                        </v-col>
+                        <v-col
+                          cols="12"
+                          md="6"
+                        >
+                          <v-text-field
+                            type="number"
+                            v-model="editItem.water_elevation"
+                            :rules="[rules.required]"
+                            :loading="loading"
+                            class="mb-5"
+                            hide-details="auto"
+                            label="Current Water Elevation"
+                            prepend-icon="mdi-call-merge"
+                            @keyup.enter="submit"
+                            required
+                          />
+                        </v-col>
+                        <v-col
+                          cols="12"
+                          md="6"
+                        >
+                          <v-text-field
+                            type="number"
+                            v-model="editItem.minimum_elevation"
+                            :rules="[rules.required]"
+                            :loading="loading"
+                            class="mb-5"
+                            hide-details="auto"
+                            label="Minimum Water Elevation"
                             prepend-icon="mdi-call-merge"
                             @keyup.enter="submit"
                             required
@@ -151,6 +204,7 @@
           :items-per-page="5"
           :search="search"
           class="custom-alert"
+          color="secondary"
           > 
             <template v-slot:item.email="{ item }">
               <span v-html="beautifyEmail(item.email)"></span>
@@ -251,6 +305,11 @@
           'admin',
           'bradcole'
         ],
+        statusItems: [
+          {text: "Open", value: "opened"},
+          {text: "Close", value: "closed"},
+          {text: "Partial Open", value: "partial_opened"},
+        ],
         eventNames: [
           'BZW - Blizzard Warning',
           'CFA - Coastal Flood Watch',
@@ -261,29 +320,41 @@
         ],
         curItem: null,
         headers: [
-          // {
-          //  text: 'User Name',
-          //  value: 'username'
-          // },
+          {
+           text: 'Site',
+           value: 'site_id'
+          },
           {
             text: 'Device Id',
             value: 'controller_id'
           },
           {
-            text: 'Controller Location',
+            text: 'Location',
             value: 'location'
           },
           {
-            text: 'Controller Description',
+            text: 'Description',
             value: 'desc'
           },
           {
-            text: 'Controller Type',
+            text: 'Type',
             value: 'type'
           },
           {
-            text: 'Controller Interval',
+            text: 'Connection Interval (min)',
             value: 'interval'
+          },
+          {
+            text: 'Valve Open Time (min)',
+            value: 'open_duration'
+          },
+          {
+            text: 'Current Water Elevation',
+            value: 'water_elevation'
+          },
+          {
+            text: 'Minimum Water Elevation',
+            value: 'minimum_elevation'
           },
           { text: 'Actions', value: 'action', sortable: false },
         ],
@@ -307,7 +378,7 @@
 
       computed: {
         formTitle () {
-          return this.defaultIndex === -1 ? 'Add Valve' : 'Edit Valve'
+          return this.defaultIndex === -1 ? 'Add Controller' : 'Edit Controller'
         },
       },
 
@@ -343,7 +414,7 @@
               this.items.push({
                 ...controller,
                 owner: controller.owner,
-                location: controller.city + ' ' +controller.state,
+                location: controller.city + ', ' +controller.state,
                 type: controller.type
               })
             })
@@ -376,7 +447,7 @@
           },
 
           async _updateController(item) {
-            this.loading = true
+            this.loading = 'secondary'
             const res = await updateController(item)
             this.showSnack(res)
             if (res.status == 'success') {
@@ -416,7 +487,7 @@
           },
 
           async _createController (item) {
-            this.loading = true
+            this.loading = 'secondary'
             const res = await createController(item)
             item.controller_id = res.controller_id
             // this.items.push(item)
@@ -460,7 +531,7 @@
           },
 
           async _delete(item) {
-            this.loading = true
+            this.loading = 'secondary'
             const res = await deleteController(item.controller_id)
             if (res == true) {
               this.items.splice(index, 1)
