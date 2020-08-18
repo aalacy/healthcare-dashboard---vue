@@ -53,7 +53,6 @@
                         class="mb-5"
                         placeholder="owner@email.com"
                         label="Owner"
-                        required
                       />
                     </v-col>
                     <v-col
@@ -61,13 +60,13 @@
                       md="6"
                     >
                       <v-text-field
+                        type="number"
                         v-model="editItem.phone"
                         :loading="loading"
                         :rules="[rules.required]"
                         hide-details="auto"
                         class="mb-5"
                         label="Phone"
-                        required
                       />
                     </v-col>
                     <v-col
@@ -81,21 +80,19 @@
                         hide-details="auto"
                         class="mb-5"
                         label="Location"
-                        required
                       />
                     </v-col>
                     <v-col
                       cols="12"
                       md="6"
                     >
-                      <v-text-field
+                      <v-select
                         v-model="editItem.account_status"
                         :loading="loading"
-                        :rules="[rules.required]"
+                        :items="statusItems"
                         hide-details="auto"
                         class="mb-5"
                         label="Status"
-                        required
                       />
                     </v-col>
                   </v-row>
@@ -145,6 +142,19 @@
             </template>
             <span>Edit Site</span>
           </v-tooltip>
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on }">
+              <v-btn 
+                text 
+                icon 
+                v-on="on"
+                @click.stop="deleteSite(item)"
+              >
+                <v-icon>mdi-delete</v-icon>
+              </v-btn>
+            </template>
+            <span>Delete Site</span>
+          </v-tooltip>
         </template>
 
         <template v-slot:item.controllers="{ item }">
@@ -184,7 +194,7 @@
 
 <script>
     import { beautifyEmail } from '../../../util'
-    import { fetchAllSites, createSite, updateSite } from '../../../api'
+    import { fetchAllSites, createSite, updateSite, removeSite } from '../../../api'
 
     export default {
       name: 'Root',
@@ -203,6 +213,10 @@
         members: [
           'admin',
           'bradcole'
+        ],
+        statusItems: [
+          {text: 'Approved', value: true},
+          {text: 'Waiting', value: false },
         ],
         eventNames: [
           'BZW - Blizzard Warning',
@@ -242,7 +256,8 @@
         ],
           defaultIndex: -1,
           editItem: {
-            email: localStorage.getItem('email')
+            email: localStorage.getItem('email'),
+            account_status: true
           },
           defaultItem: {
             email: localStorage.getItem('email')
@@ -264,7 +279,7 @@
 
       computed: {
         formTitle () {
-          return this.defaultIndex === -1 ? 'Add Account' : 'Edit Account'
+          return this.defaultIndex === -1 ? 'Add Site' : 'Edit Site'
         },
       },
 
@@ -300,6 +315,34 @@
             this.dialog = true
           },
 
+          deleteSite(item) {
+            const self = this
+            this.$dialog.confirm({
+              text: 'Do you really want to delete this site?',
+              title: 'Warning',
+              actions: {
+                false: 'No',
+                true: {
+                  color: 'red',
+                  text: 'Yes',
+                  handle: () => {
+                    self._deleteSite(item)
+                  }
+                }
+              }
+            })
+          },
+
+          async _deleteSite(item) {
+            this.loading = true
+            const res = await removeSite(item.site_id)
+            this.showSnack(res)
+            if (res.status == 'success') {
+              this.items = this.items.filter(_item => _item.site_id != item.site_id)
+            }
+            this.loading = false
+          },
+
           async addSite () {
             this.$refs.form.validate()
             if (!this.valid) {
@@ -321,16 +364,6 @@
             this.closeDialog()
 
             this.showSnack(res)
-          },
-
-          deleteSite (item) {
-            this.curItem = item
-            this.modal = true
-          },
-
-          _delete() {
-            this.items = this.items.filter(item => item.id != this.curItem.id)
-            this.modal = false
           },
 
           sendEmail () {

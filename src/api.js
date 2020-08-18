@@ -144,6 +144,13 @@ export const updateSite = async (item) => {
 	return await Put('admin/update/site', data)
 }
 
+export const removeSite = async (site_id) => {
+	const data = {
+		site_id
+	}
+	return await Post('admin/delete/site', data)
+}
+
 export const fetchAllSites = async () => {
 	const res = await Get('admin/all/sites')
 	return res.data
@@ -220,10 +227,11 @@ export const updateMemberStatus = async (email, active) => {
 	return await Post('sites/update/activate', data)
 }
 
-export const removeStaff = async(user_id) => {
+export const removeStaff = async(email, user_id) => {
 	const data = {
 		site_id: localStorage.getItem('site_id'),
-		user_id,
+		email,
+		user_id
 	}
 	return await Post('sites/delete', data)
 }

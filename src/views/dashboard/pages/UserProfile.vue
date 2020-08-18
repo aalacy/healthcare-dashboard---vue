@@ -6,111 +6,111 @@
   >
     <v-row>
       <v-col cols="12" md="8">
-        <base-material-card icon="mdi-account-outline" color="secondary">
-          <template v-slot:after-heading>
-            <div class="font-weight-light card-title mt-2">
-              Update Profile
-            </div>
-          </template>
+        <v-card class="py-4">
+          <v-card-title>
+            Update Profile
+          </v-card-title>
 
-          <v-form
-            ref="form"
-            v-model="valid"
-            class="text-center pa-5"
-          >
-            <v-row>
-                <v-text-field
-                  v-model="form.first"
-                  :loading="loading"
-                  :rules="[rules.required]"
-                  hide-details="auto"
-                  label="First Name"
-                  prepend-icon="mdi-account-outline"
-                  required
-                />
-                <v-text-field
-                  v-model="form.last"
-                  :loading="loading"
-                  :rules="[rules.required]"
-                  hide-details="auto"
-                  class="mb-5"
-                  label="Last Name"
-                  prepend-icon="mdi-account-outline"
-                  required
-                />
-                <v-menu
-                  v-model="dateMenu"
-                  :close-on-content-click="false"
-                  :nudge-right="40"
-                  transition="scale-transition"
-                  offset-y
-                  min-width="290px"
-                >
-                  <template v-slot:activator="{ on }">
-                    <v-text-field
-                      ref="dob"
-                      v-model="form.dob"
-                      label="Date"
-                      readonly
-                      :rules="[rules.required]"
-                      v-on="on"
-                    >
-                      <v-icon slot="prepend" >mdi-calendar</v-icon>
-                    </v-text-field>
-                  </template>
-                  <v-date-picker v-model="form.dob"  @input="dateMenu = false"></v-date-picker>
-                </v-menu>
-
-                <v-text-field
-                  v-model="form.email"
-                  :rules="[rules.required, rules.email]"
-                  :loading="loading"
-                  class="mb-5"
-                  readonly
-                  hide-details="auto"
-                  label="Please enter your email address."
-                  prepend-icon="mdi-email-outline"
-                  @keyup.enter="submit"
-                  required
-                />
-              </v-row>
-              <v-row>
-                <v-text-field
-                  type="number"
-                  v-model="form.phone"
-                  :rules="[rules.required]"
-                  :loading="loading"
-                  class="mb-5"
-                  hide-details="auto"
-                  label="Please enter your phone number."
-                  prepend-icon="mdi-phone-outline"
-                  @keyup.enter="submit"
-                  required
-                />
-
-
-             <!--    <v-text-field
-                  v-model="form.site"
-                  :loading="loading"
-                  class="mb-5"
-                  hide-details="auto"
-                  label="Site"
-                  prepend-icon="mdi-web"
-                  @keyup.enter="submit"
-                  required
-                /> -->
-            </v-row>
-            <v-btn
-              :loading="loading"
-              color="primary"
-              class="display-1"
-              :diabled="!valid"
-              @click="submit"
+          <v-card-text>
+            <v-form
+              ref="form"
+              v-model="valid"
+              class="text-center pa-5"
             >
-              Update
-            </v-btn>
-          </v-form>
-        </base-material-card>
+              <v-row>
+                  <v-text-field
+                    v-model="form.first"
+                    :loading="loading"
+                    :rules="[rules.required]"
+                    hide-details="auto"
+                    label="First Name"
+                    prepend-icon="mdi-account-outline"
+                    required
+                  />
+                  <v-text-field
+                    v-model="form.last"
+                    :loading="loading"
+                    :rules="[rules.required]"
+                    hide-details="auto"
+                    class="mb-5"
+                    label="Last Name"
+                    prepend-icon="mdi-account-outline"
+                    required
+                  />
+                  <v-menu
+                    v-model="dateMenu"
+                    :close-on-content-click="false"
+                    :nudge-right="40"
+                    transition="scale-transition"
+                    offset-y
+                    min-width="290px"
+                  >
+                    <template v-slot:activator="{ on }">
+                      <v-text-field
+                        ref="dob"
+                        v-model="form.dob"
+                        label="Date"
+                        readonly
+                        :rules="[rules.required]"
+                        v-on="on"
+                      >
+                        <v-icon slot="prepend" >mdi-calendar</v-icon>
+                      </v-text-field>
+                    </template>
+                    <v-date-picker v-model="form.dob"  @input="dateMenu = false"></v-date-picker>
+                  </v-menu>
+
+                  <v-text-field
+                    v-model="form.email"
+                    :rules="[rules.required, rules.email]"
+                    :loading="loading"
+                    class="mb-5"
+                    readonly
+                    hide-details="auto"
+                    label="Please enter your email address."
+                    prepend-icon="mdi-email-outline"
+                    @keyup.enter="submit"
+                    required
+                  />
+                </v-row>
+                <v-row>
+                  <v-text-field
+                    type="number"
+                    v-model="form.phone"
+                    :rules="[rules.required]"
+                    :loading="loading"
+                    class="mb-5"
+                    hide-details="auto"
+                    label="Please enter your phone number."
+                    prepend-icon="mdi-phone-outline"
+                    @keyup.enter="submit"
+                    required
+                  />
+
+
+               <!--    <v-text-field
+                    v-model="form.site"
+                    :loading="loading"
+                    class="mb-5"
+                    hide-details="auto"
+                    label="Site"
+                    prepend-icon="mdi-web"
+                    @keyup.enter="submit"
+                    required
+                  /> -->
+              </v-row>
+              <v-btn
+                :loading="loading"
+                color="primary"
+                class="display-1"
+                :diabled="!valid"
+                @click="submit"
+              >
+                Update
+              </v-btn>
+            </v-form>
+          </v-card-text>
+        </v-card>
       </v-col>
       <v-col cols="12" md="4">
         <v-card class="py-4">
@@ -127,9 +127,9 @@
                 v-model="form.old_password"
                 :rules="[rules.required]"
                 :loading="loading"
-                :append-icon="value ? 'mdi-eye' : 'mdi-eye-off'"
-                @click:append="() => (value = !value)"
-                :type="value ? 'password' : 'text'"
+                :append-icon="value1 ? 'mdi-eye' : 'mdi-eye-off'"
+                @click:append="() => (value1 = !value1)"
+                :type="value1 ? 'password' : 'text'"
                 hide-details="auto"
                 class="mb-5"
                 label="Old password"
@@ -142,16 +142,16 @@
                 v-model="form.new_password"
                 :rules="[rules.required]"
                 :loading="loading"
-                :append-icon="value ? 'mdi-eye' : 'mdi-eye-off'"
-                @click:append="() => (value = !value)"
-                :type="value ? 'password' : 'text'"
+                :append-icon="value2 ? 'mdi-eye' : 'mdi-eye-off'"
+                @click:append="() => (value2 = !value2)"
+                :type="value2 ? 'password' : 'text'"
                 hide-details="auto"
                 class="mb-5"
                 label="New password"
                 prepend-icon="mdi-lock-outline"
                 required
               />
-              <v-btn class="primary" @click="submitPassword">Update</v-btn>
+              <v-btn class="primary" :loading="loading" @click="submitPassword">Update</v-btn>
             </v-form>
           </v-card-text>
         </v-card>
@@ -173,6 +173,7 @@
               item-key="event"
               hide-default-footer
               class="custom-alert"
+              color="secondary"
             > 
                 <template v-slot:item.none="{ item }">
                   <v-checkbox
@@ -223,7 +224,7 @@
                   label="Notify via text message"
                 ></v-checkbox>
 
-                <v-btn class="success" @click="updateNotiy">Update</v-btn>
+                <v-btn class="success" :loading="loading" @click="updateNotiy">Update</v-btn>
               </v-sheet>
             </v-col>
           </v-row>
@@ -258,7 +259,8 @@
       return {
         loading: false,
         dateMenu: false,
-        value: true,
+        value1: true,
+        value2: true,
         snackbar: false,
         timeout: 10000,
         snackbar_message: '',
@@ -333,7 +335,7 @@
     },
 
     mounted () {
-      this.loading = true
+      this.loading = "secondary"
       this.getAlertData()
       this.getUserData()
       this.loading = false

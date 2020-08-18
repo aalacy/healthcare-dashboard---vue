@@ -102,7 +102,6 @@
                         <v-col
                           cols="12"
                           md="6"
-                          v-if="false"
                         >
                           <v-text-field
                             v-model="editItem.type"
@@ -128,7 +127,7 @@
                             class="mb-5"
                             hide-details="auto"
                             label="Connection interval (min)"
-                            prepend-icon="mdi-call-merge"
+                            prepend-icon="mdi-clock-outline"
                             @keyup.enter="submit"
                             required
                           />
@@ -145,7 +144,7 @@
                             class="mb-5"
                             hide-details="auto"
                             label="Valve Open Time (min)"
-                            prepend-icon="mdi-call-merge"
+                            prepend-icon="mdi-clock-outline"
                             @keyup.enter="submit"
                             required
                           />
@@ -162,7 +161,7 @@
                             class="mb-5"
                             hide-details="auto"
                             label="Current Water Elevation"
-                            prepend-icon="mdi-call-merge"
+                            prepend-icon="mdi-application"
                             @keyup.enter="submit"
                             required
                           />
@@ -179,7 +178,7 @@
                             class="mb-5"
                             hide-details="auto"
                             label="Minimum Water Elevation"
-                            prepend-icon="mdi-call-merge"
+                            prepend-icon="mdi-application"
                             @keyup.enter="submit"
                             required
                           />
@@ -490,8 +489,10 @@
             this.loading = 'secondary'
             const res = await createController(item)
             item.controller_id = res.controller_id
-            // this.items.push(item)
             this.showSnack(res)
+            if (res.status == 'success') {
+              this.items.push(res.controller)
+            }
             this.loading = false
           },
 
@@ -533,7 +534,7 @@
           async _delete(item) {
             this.loading = 'secondary'
             const res = await deleteController(item.controller_id)
-            if (res == true) {
+            if (res.status == 'success') {
               this.items.splice(index, 1)
             } 
             this.showSnack(res)

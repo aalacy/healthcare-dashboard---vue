@@ -165,12 +165,12 @@
                       cols="12"
                       md="6"
                     >
-                      <v-text-field
+                      <v-select
                         v-model="editItem.role"
                         :loading="loading"
+                        :items="roleItems"
                         hide-details="auto"
                         class="mb-5"
-                        readonly
                         label="Role"
                         prepend-icon="mdi-application"
                         required
@@ -180,8 +180,8 @@
                 </v-form>
                 <v-card-actions>
                   <v-spacer></v-spacer>
-                  <v-btn color="secondary" text @click="close">Cancel</v-btn>
-                  <v-btn color="primary" text @click="addStaff">Save</v-btn>
+                  <v-btn color="secondary" :loading="loading" text @click="close">Cancel</v-btn>
+                  <v-btn color="primary" :loading="loading" text @click="addStaff">Save</v-btn>
                 </v-card-actions>
               </v-container>
             </v-card-text>
@@ -329,11 +329,15 @@
       defaultIndex: -1,
       editItem: {
         status: true,
-        role: 'member'
+        role: 'member',
       },
       statusItems: [
         { text: 'Approved', value: true },
         { text: 'Waiting', value: false },
+      ],
+      roleItems: [
+        { text: 'Admin', value: 'admin'},
+        { text: 'Member', value: 'member'},
       ],
       rules: {
           required: value => {
@@ -422,9 +426,9 @@
       },
 
       async _deleteStaff(item) {
-        console.log(item)
         this.loading = true
-        const res = await removeStaff(item.user_id)
+        console.log(item)
+        const res = await removeStaff(item.email, item.user_id)
         this.snackText = res.message
         this.snackColor = res.status
         this.snackbar = true
@@ -456,17 +460,37 @@
         this.loading = false
       },
 
-      async addStaff() {
+      addStaff() {
         this.$refs.form.validate()
         if (this.valid) {
-          const res = await addStaff(this.editItem)
-          this.snackText = res.message
-          this.snackColor = res.status
-          this.snackbar = true
-          if (res.status == 'success') {
-            this.users.push(this.editItem)
-          }
+          const self = this
+          this.$dialog.confirm({
+            text: 'Do you really want to add this staff?',
+            title: 'Warning',
+            actions: {
+              false: 'No',
+              true: {
+                color: 'red',
+                text: 'Yes',
+                handle: () => {
+                  self._addStaff()
+                }
+              }
+            }
+          })
         }
+      },
+
+      async _addStaff() {
+        this.loading = true
+        const res = await addStaff(this.editItem)
+        this.snackText = res.message
+        this.snackColor = res.status
+        this.snackbar = true
+        if (res.status == 'success') {
+          this.users.push(res.user)
+        }
+        this.loading = false
       },
 
       async _delete () {

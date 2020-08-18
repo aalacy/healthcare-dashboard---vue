@@ -135,12 +135,12 @@ export const hexEncode = (str) =>  {
 
 export const WBChannels = () => {
   return [
-    '162.400',
-    '162.425',
-    '162.450',
-    '162.475',
-    '162.500', 
-    '162.525', 
-    '162.550'
+    {text: '162.400 MHz', value:'162.400'},
+    {text: '162.425 MHz', value: '162.425'},
+    {text: '162.450 MHz', value: '162.450'},
+    {text: '162.475 MHz', value: '162.475'},
+    {text: '162.500 MHz', value: '162.500'},
+    {text: '162.525 MHz', value: '162.525'},
+    {text: '162.550 MHz', value: '162.550'},
   ]
 }

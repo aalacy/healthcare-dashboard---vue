@@ -85,7 +85,7 @@
             <span>Open Valve</span>
           </v-tooltip>
         </template>
-        <template v-slot:item.partial_close_valve="{ item }">
+        <template v-slot:item.partial_open_valve="{ item }">
           <v-tooltip bottom>
             <template v-slot:activator="{ on }">
               <v-btn 
@@ -98,7 +98,7 @@
                 <v-icon large color="yellow darken-4">mdi-lock-open-outline</v-icon>
               </v-btn>
             </template>
-            <span>Partial Close Valve</span>
+            <span>Partial Open Valve</span>
           </v-tooltip>
         </template>
         <template v-slot:item.close_valve="{ item }">
@@ -217,7 +217,7 @@
 
 <script>
   import { beautifyEmail } from '../../util'
-  import { fetchAllControllers, fetchSiteHistory, updateController } from '../../api'
+  import { fetchAllControllers, fetchSiteHistory, updateController, updateControllerValve } from '../../api'
   import EmittingAnalogClock from 'vue-emitting-analog-clock';
   import { mapState } from 'vuex'
   import { toUpper, toLower } from 'lodash'
@@ -270,8 +270,8 @@
             width: 90
           },
           {
-            text: 'Partial Close Valve',
-            value: 'partial_close_valve',
+            text: 'Partial Open Valve',
+            value: 'partial_open_valve',
             align: 'center',
             sortable: false,
             width: 120
@@ -480,22 +480,34 @@
 
       async openValve (item) {
         this.loading = true
-        item.valve_status = 'opened'
-        const res = await updateController(item)
+        const new_item = Object.assign({}, item)
+        new_item.valve_status = 'opened'
+        const res = await updateControllerValve(new_item)
+        if (res.status == 'success') {
+          item.valve_status = 'opened'
+        }
         this.loading = false
       },
 
       async partialOpenValve (item) {
         this.loading = true
-        item.valve_status = 'partial_opened'
-        const res = await updateController(item)
+        const new_item = Object.assign({}, item)
+        new_item.valve_status = 'partial_opened'
+        const res = await updateControllerValve(new_item)
+        if (res.status == 'success') {
+          item.valve_status = 'partial_opened'
+        }
         this.loading = false
       },
 
       async closeValve (item) {
         this.loading = true
-        item.valve_status = 'closed'
-        const res = await updateController(item)
+        const new_item = Object.assign({}, item)
+        new_item.valve_status = 'closed'
+        const res = await updateControllerValve(new_item)
+        if (res.status == 'success') {
+          item.valve_status = 'closed'
+        }
         this.loading = false
       },
 
