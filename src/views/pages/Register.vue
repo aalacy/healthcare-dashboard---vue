@@ -247,13 +247,14 @@
           }
           
           if (res.data) {
+            this.snackbar_message = res.data.message
+            this.snackbar = true
             if (res.data.status === 'success') {
               this.snackbar_color = 'success'
+              this.$router.push({ name: 'Login' })
             } else {
               this.snackbar_color = 'red darken-3'
             }
-            this.snackbar_message = res.data.message
-            this.snackbar = true
           }
         }
       },

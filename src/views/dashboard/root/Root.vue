@@ -99,8 +99,8 @@
               </v-form>
                 <v-card-actions>
                   <v-spacer></v-spacer>
-                  <v-btn color="secondary" text @click="close">Cancel</v-btn>
-                  <v-btn color="primary" text @click="addSite">Save</v-btn>
+                  <v-btn color="secondary" :loading="loading" text @click="close">Cancel</v-btn>
+                  <v-btn color="primary" :loading="loading" text @click="addSite">Save</v-btn>
                 </v-card-actions>
               </v-container>
             </v-card-text>
@@ -251,7 +251,8 @@
           {
             text: 'Action',
             value: 'action',
-            width: 100
+            width: 150,
+            align: 'center'
           },
         ],
           defaultIndex: -1,
@@ -348,22 +349,24 @@
             if (!this.valid) {
               return
             }
+            this.loading = true
             const item = Object.assign({}, this.editItem)
-            let res = {
-              data: {
-                status: 'Ok' 
-              }
-            }
+            let res
             if (this.defaultIndex > -1) {
                 res = await updateSite(item)
-                Object.assign(this.items[this.defaultIndex], item)
+                if (res.status == 'success') {
+                  Object.assign(this.items[this.defaultIndex], item)
+                }
             } else {
                 res = await createSite(item)
-                this.items.push(item)
+                if (res.status == 'success') {
+                  this.items.push(res.data)
+                }
             }
             this.closeDialog()
 
             this.showSnack(res)
+            this.loading = false
           },
 
           sendEmail () {

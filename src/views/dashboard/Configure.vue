@@ -332,7 +332,7 @@
     <v-dialog v-model="historyDialog">
       <v-card>
         <div class="font-weight-medium display-1 d-flex justify-space-between align-center ml-6 mr-2 pt-5">
-          <div>History Commands ({{ commandsHistories.length }})</div>
+          <div>History Commands</div>
           <v-btn text icon @click="historyDialog = false">
             <v-icon>mdi-close</v-icon>
           </v-btn>

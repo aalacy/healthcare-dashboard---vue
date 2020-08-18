@@ -15,7 +15,7 @@
     </v-row>
     <v-card
       icon="mdi-account-multiple"
-      title="Owners"
+      title="Control Panel"
       class="px-5 py-3"
     >
       <v-card-title>
@@ -513,7 +513,6 @@
 
       filterRange (date) {
         this.$refs.menu.save(date)
-        console.log(date)
         const startDate = date[0]
         const endDate = date[1]
         const self = this

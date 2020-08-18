@@ -355,7 +355,7 @@
             text: 'Minimum Water Elevation',
             value: 'minimum_elevation'
           },
-          { text: 'Actions', value: 'action', sortable: false },
+          { text: 'Actions', value: 'action', sortable: false, width: 150, align: 'center' },
         ],
           defaultIndex: -1,
           editItem: {

@@ -128,7 +128,7 @@
             text: 'Owner Location',
             value: 'location'
           },
-          { text: 'Actions', value: 'action', sortable: false },
+          { text: 'Actions', value: 'action', sortable: false, align: 'center' },
         ]
       }),
 
