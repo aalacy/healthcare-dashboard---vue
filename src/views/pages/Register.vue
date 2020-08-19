@@ -75,7 +75,7 @@
                 <v-text-field
                   ref="dob"
                   v-model="form.dob"
-                  label="Date"
+                  label="Date of Birthday"
                   readonly
                   :rules="[rules.required]"
                   v-on="on"

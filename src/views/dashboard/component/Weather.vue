@@ -1,67 +1,134 @@
 <template>
-	<v-card width="330" hover color="primary" class="px-6 pt-2 white--text">
-        <div class="d-flex align-baseline">
-            <h3 class="d-inline-block white--text display-2 font-weight-bold">Raleigh</h3>
-            <div class="ml-auto">
-                <span class="font-weight-medium white--text">
-                	{{currentDate}}
-                    {{ currentMonth }}
-                </span>
-            </div>
+  <v-card 
+    :loading="loading"
+    v-if="weatherInfo"
+    width="300" hover  class="yellow-bg pt-2 ">
+        <div class="d-flex align-center pa-4">
+            <h3 class="d-inline-block display-2 font-weight-bold grow">
+              <div>{{curentCity}}</div>
+              <div class="body-2">{{desc}}</div>
+            </h3>
+            <img v-if="icon" class="icon" width=96 height=96 :src="icon" />
         </div>
-        <div class="py-2 weather-small">
+        <v-divider />
+        <v-sheet tile color="primary" class="pa-2 white--text weather-small">
             <div class="d-flex align-center">
-                <div class="display-6 white--text">
-                	<v-icon x-large color="white">mdi-cloud-outline</v-icon>
-                </div>
-                <h1 class="display-3 ml-3 font-weight-medium">32<sup>0</sup></h1>
-                <div class="ml-auto">
-                	<div>+66<sup>0</sup></div>
-                	<v-divider />
-                	<div>+59<sup>0</sup></div>
+                <h1 class="display-3 ml-3 font-weight-medium">{{parseInt(main.temp)}}<sup clas="title">o</sup>C</h1>
+                <div class="ml-auto mr-2">
+                  <b>Details</b>
+                  <v-divider class="my-1" />
+                  <div class="d-flex justify-space-between">
+                    <div class="mr-3">
+                      <div>Feels Like</div>
+                      <div>Wind</div>
+                      <div>Humidity</div>
+                      <div>Pressure</div>
+                    </div>
+                    <div>
+                      <div>{{parseInt(main.feels_like)}}<sup>o</sup>C</div>
+                      <div>{{weatherInfo.wind.speed}}&nbsp;m/s</div>
+                      <div>{{main.humidity}}&nbsp;%</div>
+                      <div>{{main.pressure}}&nbsp;hPa</div>
+                    </div>
+                  </div>
                 </div>
             </div>
-            <small class="">Rainy day</small>
-        </div>
-      	<v-divider />
-      	<div class="text-center title">See 7-Day Forecast <v-icon color="white" small>mdi-chevron-triple-right</v-icon></div>
+        </v-sheet>
+        <div v-if="false" class="text-center title">See 7-Day Forecast <v-icon color="white" small>mdi-chevron-triple-right</v-icon></div>
     </v-card>
 </template>
 <script>
-	export default {
-		name: 'Weather',
+  import { fetchSite, Post } from '../../../api'
+  export default {
+    name: 'Weather',
 
-		data: () => ({
-			week: ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'],
-			date: '',
-			time: '',
-		}),
+    data: () => ({
+      week: ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'],
+      date: '',
+      time: '',
+      site: null,
+      weatherInfo: null,
+      loading: false
+    }),
 
-		computed: {
-			currentDate () {
-				return this.$moment().format('ddd, DD')
-			},
+    computed: {
+      currentDate () {
+        return this.$moment().format('ddd, DD')
+      },
 
-			currentMonth () {
-				return this.$moment().format('MMMM')
-			}
-		},
+      currentMonth () {
+        return this.$moment().format('MMMM')
+      },
 
-		mounted () {
-			this.updateTime();
-			setInterval(this.updateTime, 1000);
-		},
+      curentCity() {
+        return this.site ? this.site.location + ', US' : ''
+      },
+      main () {
+        if (this.weatherInfo) {
+          return this.weatherInfo.main
+        } 
+        return ''
+      },
+      desc () {
+        if (this.weatherInfo && this.weatherInfo.weather.length) {
+          return this.weatherInfo.weather[0].description
+        } 
+        return ''
+      },
+      icon () {
+        if (this.weatherInfo && this.weatherInfo.weather.length) {
+          return `//openweathermap.org/themes/openweathermap/assets/vendor/owm/img/widgets/${this.weatherInfo.weather[0].icon}.png`
+        } 
+        return ''
+      }
+    },
 
-		methods: {
-			updateTime () {
-			    this.time = this.$moment().format('dddd, hh:mm:ss A')
-			},
-		}
-	}
+    async mounted () {
+      this.updateTime();
+      setInterval(this.updateTime, 1000);
+
+      await this.getWeatherData()
+    },
+
+    methods: {
+      updateTime () {
+        this.time = this.$moment().format('dddd, hh:mm:ss A')
+      },
+
+      async getWeatherData() {
+        this.loading = true
+        const site_id = localStorage.getItem('site_id')
+        const res = await Post('admin/get/site', {site_id})
+        if (res.status == 'success') {
+          this.site = res.data
+          if (res.weather_info.cod == 200) {
+            this.weatherInfo = res.weather_info
+          }
+        }
+        this.loading = false
+      },
+    }
+  }
 </script>
 
 <style lang="scss" scoped>
-	#clock {
-	    font-family: 'Share Tech Mono', monospace;
-	}
+  #clock {
+      font-family: 'Share Tech Mono', monospace;
+  }
+
+  .weather-small {
+    font-size: 12px;
+  }
+  .icon {
+    position: absolute;
+    display: block;
+    right: 5%;
+    -webkit-transform: translateY(-50%);
+    -ms-transform: translateY(-50%);
+    transform: translateY(0%);
+    border-radius: 4px;
+  }
+  .yellow-bg {
+    background: #e8960c;
+  }
 </style>

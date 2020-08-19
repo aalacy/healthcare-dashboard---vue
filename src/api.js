@@ -130,7 +130,7 @@ export const latestCommand = async (controller_id) => {
 
 export const getSite = async () => {
     const site_id = localStorage.getItem('site_id')
-	return await Post('admin/get/site', { site_id }).data
+	return await Post('admin/get/site', { site_id })
 }
 
 export const updateSite = async (item) => {

@@ -1,5 +1,5 @@
 <template>
-	<v-card width="300" hover color="primary" class="py-2 white--text">
+	<v-card hover height=100 color="primary" class="py-2 white--text">
 		<v-card-title>Current Date:<small class="ml-2">{{ date }}</small></v-card-title>
 		<v-card-title>Current Time:<small class="ml-2">{{ time }}</small></v-card-title>
 	</v-card>

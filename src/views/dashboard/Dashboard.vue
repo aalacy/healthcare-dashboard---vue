@@ -5,14 +5,10 @@
     tag="section"
     class="min-vh"
   >
-    <v-row no-gutters>
-      <v-col cols="auto" class="mr-auto">
-        <weather />
-      </v-col>
-      <v-col cols="auto" class="ml-auto mt-10 hidden-md-and-down">
-        <clock />
-      </v-col>
-    </v-row>
+    <div class="d-flex justify-space-between">
+      <clock />
+      <weather />
+    </div>
     <v-card
       icon="mdi-account-multiple"
       title="Control Panel"
@@ -20,8 +16,7 @@
     >
       <v-card-title>
         Control Panel
-      </v-card-title>
-      <v-card-title>
+        <v-spacer></v-spacer>
         <v-text-field
           v-model="search"
           append-icon="mdi-magnify"
@@ -218,7 +213,6 @@
 <script>
   import { beautifyEmail } from '../../util'
   import { fetchAllControllers, fetchSiteHistory, updateController, updateControllerValve } from '../../api'
-  import EmittingAnalogClock from 'vue-emitting-analog-clock';
   import { mapState } from 'vuex'
   import { toUpper, toLower } from 'lodash'
 
@@ -410,7 +404,7 @@
     },
 
     async mounted () {
-      this.fetchSites()
+      this.fetchSiteControllers()
     },
 
     methods: {
@@ -451,7 +445,7 @@
         } 
       },
 
-      async fetchSites () {
+      async fetchSiteControllers () {
         this.loading = "secondary"
         // const site_id = '203eebc5-973b-4bc3-b66f-5fc41f5da11a' 
         const res = await fetchAllControllers()

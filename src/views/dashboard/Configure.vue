@@ -371,6 +371,9 @@
                 class="custom-alert my-4"
                 hide-default-footer
               > 
+                <template v-slot:item.sent="item">
+                  
+                </template>
               </v-data-table>
             </v-tab-item>
           </v-tabs>

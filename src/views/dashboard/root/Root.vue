@@ -251,7 +251,7 @@
           {
             text: 'Action',
             value: 'action',
-            width: 150,
+            width: 280,
             align: 'center'
           },
         ],
