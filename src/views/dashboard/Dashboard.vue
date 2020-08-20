@@ -5,7 +5,7 @@
     tag="section"
     class="min-vh"
   >
-    <div class="d-flex justify-space-between">
+    <div class="d-flex align-end justify-space-between">
       <clock />
       <weather />
     </div>

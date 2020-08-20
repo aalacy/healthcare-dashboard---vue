@@ -39,50 +39,49 @@
                         >
                           <v-select
                             :loading="loading"
-                        v-model="editItem.username"
-                        :items="members"
-                        :rules="[rules.required]"
-                        attach
-                        chips
-                        label="Select a member"
-                        prepend-icon="mdi-account-outline"
-                        required
-                      ></v-select>
-                        </v-col>
-                        <v-col
-                          cols="12"
-                          md="6"
-                        >
-                          <v-text-field
-                            v-model="editItem.city"
+                            v-model="editItem.username"
+                            :items="members"
                             :rules="[rules.required]"
-                            :loading="loading"
-                            class="mb-5"
-                            hide-details="auto"
-                            label="City"
-                            prepend-icon="mdi-google-maps"
-                            @keyup.enter="submit"
+                            attach
+                            chips
+                            label="Select a member"
+                            prepend-icon="mdi-account-outline"
                             required
-                          />
+                          ></v-select>
                         </v-col>
-
                         <v-col
                           cols="12"
                           md="6"
                         >
-                          <v-text-field
+                          <v-autocomplete
                             v-model="editItem.state"
                             :rules="[rules.required]"
                             :loading="loading"
+                            :items="states"
                             class="mb-5"
                             hide-details="auto"
                             label="State"
                             prepend-icon="mdi-google-maps"
-                            @keyup.enter="submit"
                             required
                           />
                         </v-col>
-
+                        <v-col
+                          cols="12"
+                          md="6"
+                        >
+                          <v-autocomplete
+                            :disabled="!editItem.state"
+                            v-model="editItem.city"
+                            :rules="[rules.required]"
+                            :loading="loading"
+                            :items="cities(editItem.state)"
+                            class="mb-5"
+                            hide-details="auto"
+                            label="City"
+                            prepend-icon="mdi-google-maps"
+                            required
+                          />
+                        </v-col>
                         <v-col
                           cols="12"
                           md="6"
@@ -95,7 +94,6 @@
                             hide-details="auto"
                             label="Description"
                             prepend-icon="mdi-details"
-                            @keyup.enter="submit"
                             required
                           />
                         </v-col>
@@ -111,7 +109,6 @@
                             hide-details="auto"
                             label="Type"
                             prepend-icon="mdi-call-merge"
-                            @keyup.enter="submit"
                             required
                           />
                         </v-col>
@@ -128,7 +125,6 @@
                             hide-details="auto"
                             label="Connection interval (min)"
                             prepend-icon="mdi-clock-outline"
-                            @keyup.enter="submit"
                             required
                           />
                         </v-col>
@@ -145,7 +141,6 @@
                             hide-details="auto"
                             label="Valve Open Time (min)"
                             prepend-icon="mdi-clock-outline"
-                            @keyup.enter="submit"
                             required
                           />
                         </v-col>
@@ -162,7 +157,6 @@
                             hide-details="auto"
                             label="Current Water Elevation"
                             prepend-icon="mdi-application"
-                            @keyup.enter="submit"
                             required
                           />
                         </v-col>
@@ -179,7 +173,6 @@
                             hide-details="auto"
                             label="Minimum Water Elevation"
                             prepend-icon="mdi-application"
-                            @keyup.enter="submit"
                             required
                           />
                         </v-col>
@@ -187,8 +180,8 @@
                   </v-form>
                     <v-card-actions>
                       <v-spacer></v-spacer>
-                      <v-btn color="secondary" text @click="close">Cancel</v-btn>
-                      <v-btn color="primary" text @click="actionController">Save</v-btn>
+                      <v-btn color="secondary" :loading="loading" text @click="close">Cancel</v-btn>
+                      <v-btn color="primary" text :loading="loading" @click="actionController">Save</v-btn>
                     </v-card-actions>
                   </v-container>
                 </v-card-text>
@@ -283,6 +276,7 @@
 </template>
 
 <script>
+    import stateCities from 'state-cities'
     import { beautifyEmail } from '../../util'
     import { deleteController, fetchAllControllers, createController, updateController } from '../../api'
 
@@ -379,12 +373,23 @@
         formTitle () {
           return this.defaultIndex === -1 ? 'Add Controller' : 'Edit Controller'
         },
+        states () {
+          return stateCities.getStates()
+        },
       },
 
       methods: {
-          beautifyEmail,
+        beautifyEmail,
 
-          returnToRoot() {
+        cities (state) {
+          if (state) {
+            return stateCities.getCities(state)
+          } else {
+            return []
+          }
+        },
+
+        returnToRoot() {
           localStorage.removeItem('custom')
           localStorage.removeItem('site_id')
           this.$router.push({name: 'Users'})
@@ -405,6 +410,7 @@
           },
 
           async loadControllers() {
+            this.loading = 'secondary'
             const res = await fetchAllControllers()
             this.snackText = res.message
             this.snackColor = res.status
@@ -417,6 +423,7 @@
                 type: controller.type
               })
             })
+            this.loading = false
           },
 
           closeDialog () {
@@ -446,7 +453,7 @@
           },
 
           async _updateController(item) {
-            this.loading = 'secondary'
+            this.loading = true
             const res = await updateController(item)
             this.showSnack(res)
             if (res.status == 'success') {
@@ -470,7 +477,7 @@
           addController (item) {
             const self = this
             this.$dialog.confirm({
-              text: 'Do you really want to update the controller?',
+              text: 'Are you sure you want to add a new controller?',
               title: 'Warning',
               actions: {
                 false: 'No',
@@ -486,7 +493,7 @@
           },
 
           async _createController (item) {
-            this.loading = 'secondary'
+            this.loading = true
             const res = await createController(item)
             item.controller_id = res.controller_id
             this.showSnack(res)
@@ -494,6 +501,7 @@
               this.items.push(res.controller)
             }
             this.loading = false
+            this.closeDialog()
           },
 
           async actionController () {
@@ -510,7 +518,7 @@
             } else {
               this.addController(item)
             }
-            // this.closeDialog()
+            // 
           },
 
           delController (item) {
@@ -532,10 +540,10 @@
           },
 
           async _delete(item) {
-            this.loading = 'secondary'
+            this.loading = true
             const res = await deleteController(item.controller_id)
             if (res.status == 'success') {
-              this.items.splice(index, 1)
+              this.items = this.items.filter(_item => _item.controller_id != item.controller_id)
             } 
             this.showSnack(res)
             this.loading = false

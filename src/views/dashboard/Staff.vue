@@ -21,7 +21,7 @@
         ></v-text-field>
         <v-dialog v-model="dialog" max-width="720px">
           <template v-if="visibleAdd" v-slot:activator="{ on }">
-            <v-btn color="secondary" dark class="mb-2" v-on="on"><v-icon size="16" left dark>mdi-plus</v-icon>Add Staff</v-btn>
+            <v-btn color="secondary" dark class="mb-2" :loading="loading" v-on="on"><v-icon size="16" left dark>mdi-plus</v-icon>Add Staff</v-btn>
           </template>
           <v-card>
             <v-card-title>
@@ -172,6 +172,7 @@
                         hide-details="auto"
                         class="mb-5"
                         label="Role"
+                        chips
                         prepend-icon="mdi-application"
                         required
                       />
@@ -426,8 +427,7 @@
       },
 
       async _deleteStaff(item) {
-        this.loading = true
-        console.log(item)
+        this.loading = 'secondary'
         const res = await removeStaff(item.email, item.user_id)
         this.snackText = res.message
         this.snackColor = res.status
@@ -491,6 +491,7 @@
           this.users.push(res.user)
         }
         this.loading = false
+        this.close()
       },
 
       async _delete () {

@@ -133,7 +133,9 @@
       }),
 
       async mounted () {
+        this.loading = 'secondary'
         this.sites = await fetchAllSites()
+        this.loading = false
       },
 
       methods: {

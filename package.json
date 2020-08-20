@@ -28,6 +28,7 @@
     "mockserver-client": "^5.10.0",
     "moment": "^2.24.0",
     "serve-static": "^1.14.1",
+    "state-cities": "^1.0.6",
     "vue": "^2.6.11",
     "vue-emitting-analog-clock": "^1.0.0",
     "vue-i18n": "^8.15.3",

@@ -160,6 +160,11 @@
         <template v-slot:item.controllers="{ item }">
           <span>{{ item.controllers.length }}</span>
         </template>
+        <template v-slot:item.account_status="{ item }">
+          <v-chip label outlined :color="statusColor(item.account_status)" dark>
+            <div class="subtitle-2">{{ item.account_status ? 'Approved' : 'Waiting' }}</div>
+          </v-chip>
+        </template>
       </v-data-table>
     </v-card>
 
@@ -244,10 +249,10 @@
             text: 'Location',
             value: 'location'
           },
-          // {
-          //   text: 'Status',
-          //   value: 'account_status'
-          // },
+          {
+            text: 'Status',
+            value: 'account_status'
+          },
           {
             text: 'Action',
             value: 'action',
@@ -275,7 +280,9 @@
       }),
 
       async mounted () {
+        this.loading = 'secondary'
         this.items = await fetchAllSites()
+        this.loading = false
       },
 
       computed: {
@@ -285,93 +292,97 @@
       },
 
       methods: {
-          beautifyEmail,
+        beautifyEmail,
 
-          showSnack (res) {
-            if (res.status == 'success') {
-              this.snackText = res.message
-              this.snackColor = 'success'
-            } else {
-              this.snackText = res.message
-              this.snackColor = 'warning'
-            }
-            this.snackbar = true
-          },
+        statusColor (status) {
+          return status ? 'success' : 'black lighten-1'
+        },
 
-          close () {
-            this.dialog = false
-          },
+        showSnack (res) {
+          if (res.status == 'success') {
+            this.snackText = res.message
+            this.snackColor = 'success'
+          } else {
+            this.snackText = res.message
+            this.snackColor = 'warning'
+          }
+          this.snackbar = true
+        },
 
-          closeDialog () {
-            this.dialog = false
-            setTimeout(() => {
-              this.defaultItem = Object.assign({}, this.defaultItem)
-              this.defaultIndex = -1
-            }, 300)
-          },
+        close () {
+          this.dialog = false
+        },
 
-          editSite (item) {
-            this.defaultIndex = this.items.indexOf(item)
-            this.editItem = Object.assign({}, item)
-            this.dialog = true
-          },
+        closeDialog () {
+          this.dialog = false
+          setTimeout(() => {
+            this.defaultItem = Object.assign({}, this.defaultItem)
+            this.defaultIndex = -1
+          }, 300)
+        },
 
-          deleteSite(item) {
-            const self = this
-            this.$dialog.confirm({
-              text: 'Do you really want to delete this site?',
-              title: 'Warning',
-              actions: {
-                false: 'No',
-                true: {
-                  color: 'red',
-                  text: 'Yes',
-                  handle: () => {
-                    self._deleteSite(item)
-                  }
+        editSite (item) {
+          this.defaultIndex = this.items.indexOf(item)
+          this.editItem = Object.assign({}, item)
+          this.dialog = true
+        },
+
+        deleteSite(item) {
+          const self = this
+          this.$dialog.confirm({
+            text: 'Do you really want to delete this site?',
+            title: 'Warning',
+            actions: {
+              false: 'No',
+              true: {
+                color: 'red',
+                text: 'Yes',
+                handle: () => {
+                  self._deleteSite(item)
                 }
               }
-            })
-          },
-
-          async _deleteSite(item) {
-            this.loading = true
-            const res = await removeSite(item.site_id)
-            this.showSnack(res)
-            if (res.status == 'success') {
-              this.items = this.items.filter(_item => _item.site_id != item.site_id)
             }
-            this.loading = false
-          },
+          })
+        },
 
-          async addSite () {
-            this.$refs.form.validate()
-            if (!this.valid) {
-              return
-            }
-            this.loading = true
-            const item = Object.assign({}, this.editItem)
-            let res
-            if (this.defaultIndex > -1) {
-                res = await updateSite(item)
-                if (res.status == 'success') {
-                  Object.assign(this.items[this.defaultIndex], item)
-                }
-            } else {
-                res = await createSite(item)
-                if (res.status == 'success') {
-                  this.items.push(res.data)
-                }
-            }
-            this.closeDialog()
-
-            this.showSnack(res)
-            this.loading = false
-          },
-
-          sendEmail () {
-            
+        async _deleteSite(item) {
+          this.loading = true
+          const res = await removeSite(item.site_id)
+          this.showSnack(res)
+          if (res.status == 'success') {
+            this.items = this.items.filter(_item => _item.site_id != item.site_id)
           }
+          this.loading = false
+        },
+
+        async addSite () {
+          this.$refs.form.validate()
+          if (!this.valid) {
+            return
+          }
+          this.loading = 'secondary'
+          const item = Object.assign({}, this.editItem)
+          let res
+          if (this.defaultIndex > -1) {
+              res = await updateSite(item)
+              if (res.status == 'success') {
+                Object.assign(this.items[this.defaultIndex], item)
+              }
+          } else {
+              res = await createSite(item)
+              if (res.status == 'success') {
+                this.items.push(res.data)
+              }
+          }
+          this.closeDialog()
+
+          this.showSnack(res)
+          this.loading = false
+        },
+
+        sendEmail () {
+          
+        }
       }
   }
 </script>
