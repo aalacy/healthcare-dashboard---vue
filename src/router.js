@@ -16,17 +16,26 @@ let router = new Router({
           name: 'Login',
           path: 'login',
           component: () => import('@/views/pages/Login'),
-          meta: {
-            requiresAuth: false
-          }
+        },
+        {
+          name: 'Email Verify',
+          path: 'email-verify',
+          component: () => import('@/views/pages/EmailVerify'),
+        },
+        {
+          name: 'Phone Verify',
+          path: 'phone-verify',
+          component: () => import('@/views/pages/PhoneVerify'),
+        },
+        {
+          name: 'Phone Verify2',
+          path: 'phone-verify2',
+          component: () => import('@/views/pages/PhoneVerify2'),
         },
         {
           name: 'Register',
           path: 'register',
           component: () => import('@/views/pages/Register'),
-          meta: {
-            requiresAuth: false
-          }
         },
       ],
     },

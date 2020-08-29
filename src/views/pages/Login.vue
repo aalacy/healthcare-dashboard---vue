@@ -134,16 +134,20 @@
     },
 
     mounted () {
-      localStorage.setItem('jwt', null)
-      localStorage.setItem('token', null)
-      localStorage.setItem('site_id', null)
-      localStorage.setItem('roottoken', null)
-      localStorage.setItem('custom', null)
+      
     },
 
     methods: {
       gotoSignup () {
         this.$router.push({ name: "Register" });
+      },
+
+      clearStorage () {
+        localStorage.setItem('jwt', null)
+        localStorage.setItem('token', null)
+        localStorage.setItem('site_id', null)
+        localStorage.setItem('roottoken', null)
+        localStorage.setItem('custom', null)
       },
 
       gotoDashboard (data) {
@@ -168,14 +172,13 @@
           const self = this
           let res = {}
           try {
-           res = await axios({
-            url:`${BASE_API}/auth/login`,
-            method: 'POST',
-            data: this.form,
-            withCredentials: false,
-            crossdomain: true,
+            res = await axios({
+              url:`${BASE_API}/auth/login`,
+              method: 'POST',
+              data: this.form
             }) 
           } catch (e) {
+            console.log(e)
             res = e.response
           } finally {
             this.loading = false
@@ -183,11 +186,18 @@
 
           if (res.data) {
             if (res.data.status === 'success') {
+              this.clearStorage()
               this.gotoDashboard(res.data)
             } else {
               this.snackbar_message = res.data.message
               this.snackbar_color = 'failure'
               this.snackbar = true
+
+              if (res.data.detail == 'verify_email') {
+                this.$router.push({name: 'Email Verify'})
+              } else if (res.data.detail == 'verify_phone') {
+                this.$router.push({name: 'Phone Verify'})
+              }
             }
           }
         }

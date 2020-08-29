@@ -10,12 +10,22 @@ const getAuthToken = () => {
 	return localStorage.getItem('token')
 }
 
+const getUserData = () => {
+	let user = {}
+	try {
+		user = jwtDecode(localStorage.getItem('token'))
+	} catch (e) {
+		console.log(user)
+	}
+	return user
+}
+
 const getEmail = () => {
-	return jwtDecode(localStorage.getItem('token')).email
+	return getUserData().email
 }
 
 export const getRole = () => {
-	return jwtDecode(localStorage.getItem('token')).role.toLowerCase()
+	return getUserData().role.toLowerCase()
 }
 
 export const isAdmin = () => {
@@ -288,4 +298,33 @@ export const updateAlert = async (item) => {
 		site_id: localStorage.getItem('site_id'),
 	}
 	return await Post('auth/update/alerts', data)
+}
+
+export const resendEmailVerify  = async (email) => {
+	const data = {
+		email
+	}
+	return Post('auth/reset/email', data)
+}
+
+export const verifyEmail = async (email) => {
+	const data = {
+		email
+	}
+	return Post('auth/verify/email', data)
+}
+
+export const resendPhoneVerifyCode  = async () => {
+	const data = {
+		email: localStorage.getItem('email'),
+	}
+	return Post('auth/reset/textmessages', data)
+}
+
+export const verifyPhone= async (code) => {
+	const data = {
+		email: localStorage.getItem('email'),
+		code
+	}
+	return Post('auth/verify/phone', data)
 }
