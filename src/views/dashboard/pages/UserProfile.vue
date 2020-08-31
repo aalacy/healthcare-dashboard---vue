@@ -38,6 +38,7 @@
                     required
                   />
                   <v-menu
+                    v-if="false"
                     v-model="dateMenu"
                     :close-on-content-click="false"
                     :nudge-right="40"

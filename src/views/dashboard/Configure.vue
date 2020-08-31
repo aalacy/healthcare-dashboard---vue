@@ -173,12 +173,12 @@
                           >
                             <v-text-field
                               type="number"
-                              v-model="event.timeout"
+                              v-model="event.valve_open_time"
                               :loading="loading"
-                              :rules="[rules.required, rules.number]"
+                              :rules="[rules.required, rules.number1]"
                               hide-details="auto"
                               class="mb-5"
-                              label="Timeout"
+                              label="NWS Valve Open Time (min)"
                               hint="Delay in 5 min increments"
                               required
                             />
@@ -246,10 +246,10 @@
                             type="number"
                             v-model="config.stuck_valve"
                             :loading="loading"
-                            :rules="[rules.required, rules.number]"
+                            :rules="[rules.required, rules.number2]"
                             hide-details="auto"
                             class="mb-5"
-                            label="Stuck Valve"
+                            label="STUCK VALVE ALARM in MINUTES"
                             hint="Time to transition (open-to-closed or closed-to-open) in seconds (min 1, max 255)"
                             required
                           />
@@ -536,8 +536,8 @@
               align: 'center'
             },
             {
-              text: 'Timeout',
-              value: 'timeout',
+              text: 'NWS Valve Open Time (min) ',
+              value: 'valve_open_time',
               align: 'center'
             },
             {
@@ -766,10 +766,16 @@
               return !!value || 'This field is required.'
             },
             number: value => {
-              return (value > 0 && value < 255) || 'Please input value between 1 and 255'
+              return (value > 0 && value <= 255) || 'Please input value between 1 and 255'
+            },
+            number1: value => {
+              return (value > 0 && value <= 2880) || 'Please input value between 1 and 255'
+            },
+            number1: value => {
+              return (value > 0 && value <= 1800) || 'Please input value between 1 and 255'
             },
             chan: value => {
-              return (value > 0 && value < 7) || 'Please input value between 1 and 255'
+              return (value > 0 && value <= 7) || 'Please input value between 1 and 255'
             }
           },
           config: {},

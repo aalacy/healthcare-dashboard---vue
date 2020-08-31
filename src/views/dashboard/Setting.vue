@@ -1,9 +1,9 @@
 <template>
   <v-container
-      id="dashboard"
-      fluid
-      tag="section"
-      class="min-vh"
+    id="dashboard"
+    fluid
+    tag="section"
+    class="min-vh"
     >
     <v-card
       class="px-5 py-3"
@@ -145,17 +145,18 @@
                           />
                         </v-col>
                         <v-col
+                          v-if="false"
                           cols="12"
                           md="6"
                         >
                           <v-text-field
                             type="number"
-                            v-model="editItem.water_elevation"
+                            v-model="editItem.minimum_water_elevation"
                             :rules="[rules.required]"
                             :loading="loading"
                             class="mb-5"
                             hide-details="auto"
-                            label="Current Water Elevation"
+                            label="Minimum Water Level Elevation"
                             prepend-icon="mdi-application"
                             required
                           />
@@ -341,10 +342,10 @@
             text: 'Valve Open Time (min)',
             value: 'open_duration'
           },
-          {
-            text: 'Current Water Elevation',
-            value: 'water_elevation'
-          },
+          // {
+          //   text: 'Current Water Elevation',
+          //   value: 'water_elevation'
+          // },
           {
             text: 'Minimum Water Elevation',
             value: 'minimum_elevation'

@@ -65,6 +65,7 @@
                       />
                     </v-col>
                     <v-col
+                      v-if="false"
                       cols="12"
                       md="6"
                     >
@@ -111,6 +112,7 @@
 
                     <v-col
                       cols="12"
+                      md="6"
                     >
                       <v-text-field
                         type="number"

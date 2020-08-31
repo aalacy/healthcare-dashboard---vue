@@ -225,7 +225,12 @@
       },
 
       clearStorage() {
-        // localStorage.removeItem('custom')
+        localStorage.removeItem('custom')
+        localStorage.removeItem('roottoken')
+        localStorage.removeItem('email')
+        localStorage.removeItem('jwt')
+        localStorage.removeItem('site_id')
+        localStorage.removeItem('token')
       },
 
       async goto (name, index=-1) {

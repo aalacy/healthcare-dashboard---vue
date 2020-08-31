@@ -24,7 +24,7 @@
           min-width=300
         >
           <v-card-title class="my-3">
-            Phone Number Verification
+            Verify phone number
           </v-card-title>
           <v-card-text
             class="text-center"
@@ -34,14 +34,24 @@
               v-model="valid"
             >
               <v-text-field
-                ref="email"
                 v-model="form.email"
-                :rules="[rules.required, rules.email]"
                 :loading="loading"
                 hide-details="auto"
                 class="mb-5"
-                label="Please enter your email address."
+                readonly
+                label="Your email address."
                 prepend-icon="mdi-email-outline"
+                @keyup.13="submit"
+                required
+              />
+              <v-text-field
+                v-model="form.phone"
+                :rules="[rules.required]"
+                :loading="loading"
+                hide-details="auto"
+                class="mb-5"
+                label="Your phone number."
+                prepend-icon="mdi-phone-outline"
                 @keyup.13="submit"
                 required
               />
@@ -55,6 +65,33 @@
                 Submit
               </v-btn>
             </v-form>
+            <div class="mt-3">Do you want update your phone number? click <a href="#" @click="phoneSection=!phoneSection">{{title}}</a></div>
+            <v-form
+              ref="updateForm"
+              v-if="phoneSection"
+            >
+              <v-text-field
+                ref="email"
+                v-model="updateForm.phone"
+                :rules="[rules.required]"
+                :loading="loading"
+                hide-details="auto"
+                class="mb-5"
+                label="Your phone number."
+                prepend-icon="mdi-phone-outline"
+                @keyup.13="submit"
+                required
+              />
+              <v-btn
+                class="ma-1 mt-1"
+                color="primary"
+                :loading="loading"
+                :diabled="loading || !updateValid"
+                @click="update"
+              >
+                Update
+              </v-btn>
+            </v-form>
           </v-card-text>
         </v-card>
       </v-slide-y-transition>
@@ -63,7 +100,7 @@
 </template>
 
 <script>
-  import { resendPhoneVerifyCode } from '../../api'
+  import { resendPhoneVerifyCode, Post } from '../../api'
 
   export default {
     name: 'EmailVerify',
@@ -72,11 +109,17 @@
       return {
         loading: false,
         valid: true,
+        updateValid: true,
         snackbar: false,
         color: 'success',
         message: '',
+        phoneSection: false,
         form: {
-          email: ''
+          email: localStorage.getItem('email'),
+          phone: ''
+        },
+        updateForm: {
+          phone: ''
         },
         rules: {
           required: value => {
@@ -90,6 +133,12 @@
         },
       }
     },
+    computed : {
+      title () {
+        return this.phoneSection ? "hide" : "here"
+      }
+    },
+
     mounted () {
     },
     methods: {
@@ -109,10 +158,24 @@
           if (res.status == 'success') {
             const self = this
             setTimeout(function() {self.$router.push({ name: 'Phone Verify2' })}, 2500)
-            localStorage.setItem('email', this.form.email)
           }
         }
-      }
+      },
+
+      async update () {
+        console.log("update")
+        this.$refs.updateForm.validate()
+        if (this.updateValid) {
+          this.loading = true
+          const data = {
+            ...this.updateForm,
+            email: localStorage.getItem('email')
+          }
+          const res = await Post('auth/update/profile', data)
+          this.showSnack(res)
+          this.loading = false
+        }
+      },
     }
   }
 </script>

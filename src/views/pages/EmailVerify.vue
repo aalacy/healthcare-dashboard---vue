@@ -38,7 +38,8 @@
                 :loading="loading"
                 hide-details="auto"
                 class="mb-5"
-                label="Please enter your email address."
+                readonly
+                label="Your email address."
                 prepend-icon="mdi-email-outline"
                 @keyup.enter="submit"
                 required
@@ -77,7 +78,7 @@
         color: 'success',
         message: '',
         form: {
-          email: ''
+          email: localStorage.getItem('email')
         },
         rules: {
           required: value => {

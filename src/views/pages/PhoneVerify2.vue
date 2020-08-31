@@ -117,6 +117,10 @@
         const res = await resendPhoneVerifyCode()
         this.showSnack(res)
         this.loading = false
+        if (res.status == success) {
+          const self = this
+          setTimeout(function() {self.$router.push({ name: 'Login' })}, 2500)
+        }
       }
     }
   }

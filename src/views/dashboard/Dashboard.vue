@@ -290,6 +290,12 @@
             width: 100
           },
           {
+            text: 'Link Status',
+            value: 'link_status',
+            align: 'center',
+            width: 100
+          },
+          {
             text: 'NWS Reception',
             value: 'nws_reception',
             align: 'center',
@@ -369,17 +375,23 @@
             width: 170
           },
           {
-            text: 'Reason Code',
-            value: 'reason',
+            text: 'Water Level Reading',
+            value: 'water_level_reading',
             align: 'center',
-            width: 250
+            width: 220
           },
-          {
-            text: 'Error',
-            value: 'error',
-            align: 'center',
-            width: 120
-          },
+          // {
+          //   text: 'Reason Code',
+          //   value: 'reason',
+          //   align: 'center',
+          //   width: 250
+          // },
+          // {
+          //   text: 'Error',
+          //   value: 'error',
+          //   align: 'center',
+          //   width: 120
+          // },
         ],
         controllers: [],
         historyControllers: [],

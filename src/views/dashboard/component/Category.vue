@@ -90,6 +90,19 @@
             </template>
             <span>Show Details</span>
           </v-tooltip>
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on }">
+              <v-btn 
+                text 
+                icon 
+                v-on="on"
+                @click.stop="showHistory(item)"
+              >
+                <v-icon>mdi-history</v-icon>
+              </v-btn>
+            </template>
+            <span>Show History</span>
+          </v-tooltip>
         </template>
         <template v-slot:item.data-table-expand="{ item, isExpanded, expand }">
           <v-btn @click="expand(true)" v-if="item.canExpand && !isExpanded">Expand</v-btn>
@@ -340,12 +353,15 @@
         </template>
       </v-data-table>
     </v-card>
+
+    
   </v-container>
 </template>
 
 <script>
-  import { BASE_API } from '../../../api'
+  import { BASE_API, Get } from '../../../api'
   import axios from 'axios'
+  import { mapState, mapActions } from 'vuex'
 
   export default {
     name: 'CategoryRisk',
@@ -353,11 +369,14 @@
     data: () => ({
       loading: false,
       search: '',
+      searchHistory: '',
       ripple: false,
       currentQuestion: '',
       details: false,
       expanded: [],
       select:[],
+      history: [],
+      dialog: false,
       categories: [
       ],
       risks: [
@@ -366,9 +385,7 @@
     }),
 
     computed: {
-      page () {
-        return Number(localStorage.getItem('page')) || 5
-      }, 
+      ...mapState(['page', 'companyId']), 
       headers () {
         let headers = [
           {
@@ -417,12 +434,14 @@
         this.details = true
         this.expanded.push(item)
       },
+      async showHistory (item) {
+        this.dialog = true
+        this.loading = true
+        const res = await Get($`risks/history/${item.question_id}/${companyId}`)
+        this.history = res.risks
+        this.loading = false
+      },
       fetchRisks () {
-        let user = {}
-        try {
-          user = JSON.parse(localStorage.getItem('user'))
-        } catch(e) {}
-        const companyId = user.email.split('@')[1];
         const self = this
         self.loading = true
         axios(`${BASE_API}/api/risks/${this.category}/${companyId}`, {

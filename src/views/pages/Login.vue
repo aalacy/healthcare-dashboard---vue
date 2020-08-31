@@ -32,10 +32,8 @@
               <h1 class="display-2 font-weight-bold">
                 Login
               </h1>
-             
             </div>
           </template>
-
           <v-card-text
             class="text-center"
           >
@@ -193,6 +191,7 @@
               this.snackbar_color = 'failure'
               this.snackbar = true
 
+              localStorage.setItem('email', this.form.email)
               if (res.data.detail == 'verify_email') {
                 this.$router.push({name: 'Email Verify'})
               } else if (res.data.detail == 'verify_phone') {
