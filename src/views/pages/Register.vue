@@ -102,9 +102,10 @@
             <v-text-field
               type="number"
               v-model="form.phone"
-              :rules="[rules.required]"
+              :rules="[rules.required, rules.counter]"
               :loading="loading"
               class="mb-5"
+              prefix="+1"
               hide-details="auto"
               label="Please enter your phone number."
               prepend-icon="mdi-phone-outline"
@@ -216,7 +217,7 @@
           confirm: value => {
             return this.form.password == value || 'Password does not match'
           },
-          counter: value => value.length >= 6 || 'Min 6 characters',
+          counter: value => value.length == 10 || '10 digits',
           email: value => {
             const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
             return pattern.test(value) || 'Invalid e-mail.'

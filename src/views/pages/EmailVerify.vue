@@ -21,13 +21,34 @@
     <v-row justify="center">
       <v-slide-y-transition appear>
         <v-card>
-          <v-card-title class="my-3">
-            Email Verification
-          </v-card-title>
+          <div class="mt-5 display-2 font-weight-medium text-center">
+            Please Verify Email
+          </div>
           <v-card-text
             class="text-center"
           >
+            <v-list>
+              <v-list-item>
+                <div class="d-flex">
+                  <v-icon>mdi-email-outline</v-icon>
+                  <div class="ml-3">{{form.email}}</div>
+                </div>
+              </v-list-item>
+            </v-list>
+            <v-btn
+              class="ma-1 mt-1"
+              color="primary"
+              :loading="loading"
+              :diabled="!valid"
+              @click="submit"
+            >
+              Verify
+            </v-btn>
+            <div class="text-center mt-2 grey--text body-1 font-weight-light">
+              If you didn't receive any verification email, click <a href="javascript:;" @click="resend">here</a> to resend.
+            </div>
             <v-form
+              v-if="false"
               ref="form"
               v-model="valid"
             >
@@ -44,18 +65,7 @@
                 @keyup.enter="submit"
                 required
               />
-              <v-btn
-                class="ma-1 mt-1"
-                color="primary"
-                :loading="loading"
-                :diabled="!valid"
-                @click="submit"
-              >
-                Verify
-              </v-btn>
-              <div class="text-center mt-2 grey--text body-1 font-weight-light">
-                If you didn't receive any verification email, click <a href="javascript:;" @click="resend">here</a> to resend.
-              </div>
+              
             </v-form>
           </v-card-text>
         </v-card>
@@ -102,8 +112,8 @@
       },
 
       async submit () {
-        this.$refs.form.validate()
-        if (this.valid) {
+        // this.$refs.form.validate()
+        // if (this.valid) {
           this.loading = true
           const res = await verifyEmail(this.form.email) 
           this.showSnack(res)
@@ -111,17 +121,22 @@
           if (res.status == 'success') {
             const self = this
             setTimeout(function() {self.$router.push({ name: 'Login' })}, 3500)
+          } else {
+            if (res.detail == 'verify_phone') {
+              localStorage.setItem('phone', res.phone)
+              this.$router.push({name: 'Phone Verify'})
+            }
           }
-        }
+        // }
       },
       async resend () {
-        this.$refs.form.validate()
-        if (this.valid) {
+        // this.$refs.form.validate()
+        // if (this.valid) {
           this.loading = true
           const res = await resendEmailVerify(this.form.email)
           this.showSnack(res)
           this.loading = false
-        }
+        // }
       }
     }
   }

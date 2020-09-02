@@ -23,13 +23,44 @@
         <v-card
           min-width=300
         >
-          <v-card-title class="my-3">
-            Verify phone number
-          </v-card-title>
+          <div class="mt-5 display-2 font-weight-medium text-center">
+            Please Verify Phone Number
+          </div>
           <v-card-text
             class="text-center"
           >
+            <v-card
+              class="mt-1"
+              outlined
+              rounded
+            >
+              <v-list>
+                <v-list-item>
+                  <div class="d-flex">
+                    <v-icon>mdi-email-outline</v-icon>
+                    <div class="ml-3">{{form.email}}</div>
+                  </div>
+                </v-list-item>
+                <v-list-item>
+                  <div class="d-flex">
+                    <v-icon>mdi-phone-outline</v-icon>
+                    <div class="ml-3">{{form.phone}}</div>
+                  </div>
+                </v-list-item>
+              </v-list>
+            </v-card>
+            <v-btn
+                class="ma-1 mt-1"
+                color="primary"
+                :loading="loading"
+                :diabled="!valid"
+                @click="submit"
+              >
+                Verification Code
+              </v-btn>
+
             <v-form
+              v-if="false"
               ref="form"
               v-model="valid"
             >
@@ -50,22 +81,16 @@
                 :loading="loading"
                 hide-details="auto"
                 class="mb-5"
+                readonly
                 label="Your phone number."
                 prepend-icon="mdi-phone-outline"
                 @keyup.13="submit"
                 required
               />
-              <v-btn
-                class="ma-1 mt-1"
-                color="primary"
-                :loading="loading"
-                :diabled="!valid"
-                @click="submit"
-              >
-                Submit
-              </v-btn>
+              
             </v-form>
             <div class="mt-3">Do you want update your phone number? click <a href="#" @click="phoneSection=!phoneSection">{{title}}</a></div>
+            
             <v-form
               ref="updateForm"
               v-if="phoneSection"
@@ -84,7 +109,7 @@
               />
               <v-btn
                 class="ma-1 mt-1"
-                color="primary"
+                color="success"
                 :loading="loading"
                 :diabled="loading || !updateValid"
                 @click="update"
@@ -116,7 +141,7 @@
         phoneSection: false,
         form: {
           email: localStorage.getItem('email'),
-          phone: ''
+          phone: localStorage.getItem('phone')
         },
         updateForm: {
           phone: ''
@@ -149,8 +174,8 @@
       },
 
       async submit () {
-        this.$refs.form.validate()
-        if (this.valid) {
+        // this.$refs.form.validate()
+        // if (this.valid) {
           this.loading = true
           const res = await resendPhoneVerifyCode(this.form.email)
           this.showSnack(res)
@@ -159,11 +184,10 @@
             const self = this
             setTimeout(function() {self.$router.push({ name: 'Phone Verify2' })}, 2500)
           }
-        }
+        // }
       },
 
       async update () {
-        console.log("update")
         this.$refs.updateForm.validate()
         if (this.updateValid) {
           this.loading = true
@@ -173,6 +197,9 @@
           }
           const res = await Post('auth/update/profile', data)
           this.showSnack(res)
+          if (res.status == 'success') {
+            this.form.phone = this.updateForm.phone
+          }
           this.loading = false
         }
       },

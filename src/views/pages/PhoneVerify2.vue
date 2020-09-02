@@ -23,9 +23,9 @@
         <v-card
           min-width=300
         >
-          <v-card-title class="my-3">
-            Phone Number Verification
-          </v-card-title>
+          <div class="mt-5 display-2 font-weight-medium text-center">
+            Please Input Your Code
+          </div>
           <v-card-text
             class="text-center"
           >
@@ -42,7 +42,7 @@
                 hide-details="auto"
                 class="mb-5"
                 label="Please enter your code."
-                prepend-icon="mdi-email-outline"
+                prepend-icon="mdi-text"
                 @keyup.enter="submit"
                 required
               />

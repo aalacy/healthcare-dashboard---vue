@@ -194,7 +194,9 @@
               localStorage.setItem('email', this.form.email)
               if (res.data.detail == 'verify_email') {
                 this.$router.push({name: 'Email Verify'})
-              } else if (res.data.detail == 'verify_phone') {
+              } 
+              if (res.data.detail == 'verify_phone') {
+                localStorage.setItem('phone', res.data.phone)
                 this.$router.push({name: 'Phone Verify'})
               }
             }
