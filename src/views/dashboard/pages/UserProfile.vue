@@ -68,27 +68,28 @@
                     class="mb-5"
                     readonly
                     hide-details="auto"
-                    label="Please enter your email address."
+                    label="Email address."
                     prepend-icon="mdi-email-outline"
                     @keyup.enter="submit"
                     required
                   />
                 </v-row>
                 <v-row>
-                  <v-text-field
-                    type="number"
-                    v-model="form.phone"
-                    :rules="[rules.required]"
-                    :loading="loading"
-                    class="mb-5"
-                    hide-details="auto"
-                    label="Please enter your phone number."
-                    prepend-icon="mdi-phone-outline"
-                    @keyup.enter="submit"
-                    required
-                  />
-
-
+                  <v-col cols="auto">
+                    <v-text-field
+                      type="number"
+                      v-model="form.phone"
+                      :rules="[rules.required, rules.counter]"
+                      :loading="loading"
+                      prefix="+1"
+                      class="mb-5"
+                      hide-details="auto"
+                      label="Phone number."
+                      prepend-icon="mdi-phone-outline"
+                      @keyup.enter="submit"
+                      required
+                    />
+                  </v-col>
                <!--    <v-text-field
                     v-model="form.site"
                     :loading="loading"
@@ -320,7 +321,7 @@
           confirm: value => {
             return this.form.oldpassword == value || 'Password does not match'
           },
-          counter: value => value.length >= 6 || 'Min 6 characters',
+          counter: value => value.length == 10 || '10 digits',
           email: value => {
             const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
             return pattern.test(value) || 'Invalid e-mail.'
@@ -402,7 +403,9 @@
       },
       async _udpateProfile() {
         this.loading = true
-        const res = await updateProfile(this.form)
+        const data = Object.assign({}, this.form)
+        data.phone = `1${data.phone}`
+        const res = await updateProfile(data)
         this.snackbar_message = res.message
         this.snackbar_color = res.status
         this.snackbar = true

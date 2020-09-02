@@ -290,12 +290,6 @@
             width: 100
           },
           {
-            text: 'Link Status',
-            value: 'link_status',
-            align: 'center',
-            width: 100
-          },
-          {
             text: 'NWS Reception',
             value: 'nws_reception',
             align: 'center',
@@ -336,6 +330,12 @@
             value: 'minimum_elevation',
             align: 'center',
             width: 110
+          },
+          {
+            text: 'Link Status',
+            value: 'link_status',
+            align: 'center',
+            width: 100
           },
           {
             text: 'History',

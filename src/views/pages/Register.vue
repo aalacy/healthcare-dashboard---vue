@@ -235,12 +235,14 @@
         
         if (this.valid) {
           this.loading = true
+          const data = Object.assign({}, this.form)
+          data.phone = `1${data.phone}`
           let res = {}
           try {
             res = await axios({
               url: `${BASE_API}/auth/create`,
               method: 'POST',
-              data: this.form,
+              data,
             })
           } catch (e) {
             res = e.response
