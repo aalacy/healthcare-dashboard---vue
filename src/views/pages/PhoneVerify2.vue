@@ -70,7 +70,8 @@
 
 <script>
   import { resendPhoneVerifyCode, verifyPhone } from '../../api'
-
+  import jwtDecode from 'jwt-decode'
+  
   export default {
     name: 'EmailVerify',
 
@@ -100,6 +101,20 @@
         this.snackbar = true
       },
 
+      gotoDashboard (data) {
+        localStorage.setItem('jwt', 'success')
+        localStorage.setItem('token', data.token)
+        const token = jwtDecode(data.token)
+        localStorage.setItem('site_id', token.site_id)
+        localStorage.setItem('email', token.email)
+        if (token.role == 'root') {
+          localStorage.setItem('roottoken', data.token)
+          this.$router.push({ name: "Users" });
+        } else {
+          this.$router.push({ name: "Sites" });
+        }
+      },
+
       async submit () {
         this.$refs.form.validate()
         if (this.valid) {
@@ -108,7 +123,7 @@
           this.showSnack(res)
           this.loading = false
           if (res.status == 'success') {
-            this.$router.push({ name: 'Login' })
+            this.gotoDashboard(res)
           }
         }
       },

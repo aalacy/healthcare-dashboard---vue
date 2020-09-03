@@ -119,11 +119,11 @@
           </v-chip>
         </template>
 
-      <!--   <template v-slot:item.link_status="{ item }">
+        <template v-slot:item.link_status="{ item }">
           <v-chip label outlined :color="linkStatusColor(item.link_status)" dark>
-            <div class="subtitle-2">{{ item.link_status.toUpperCase() }}</div>
+            <div class="subtitle-2">{{ toUpper(item.link_status || 'closed') }}</div>
           </v-chip>
-        </template> -->
+        </template>
 
         <template v-slot:item.error="{ item }">
           <v-chip label outlined :color="errorStatusColor(item.error)" dark>
@@ -441,11 +441,13 @@
 
       linkStatusColor (link_status) {
         link_status = toLower(link_status)
-        if (link_status == 'connected') {
+        if (link_status == 'active') {
           return 'success'
-        } else {
+        } else if (link_status == 'closed'){
           return 'red darken-3'
-        } 
+        } else {
+          return 'yellow darken-4'
+        }
       },
 
       errorStatusColor (error) {

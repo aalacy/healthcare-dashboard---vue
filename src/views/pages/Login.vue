@@ -183,8 +183,8 @@
           }
 
           if (res.data) {
+            this.clearStorage()
             if (res.data.status === 'success') {
-              this.clearStorage()
               this.gotoDashboard(res.data)
             } else {
               this.snackbar_message = res.data.message
