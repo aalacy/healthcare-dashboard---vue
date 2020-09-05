@@ -351,6 +351,7 @@
         this.snackbar_color = res.status
         if (res.status == 'success') {
           this.form = res.user
+          this.form.phone = this.form.phone.substr(1, 10)
         } else {
           this.snackbar = true
         }
