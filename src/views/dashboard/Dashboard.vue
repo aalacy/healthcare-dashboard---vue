@@ -43,6 +43,12 @@
             color="yellow darken-2"
           ></v-progress-linear>
         </template>
+        <template v-slot:header.link_status="{ header }">
+          <div>
+            <div class="mb-2">{{header.text}}</div>
+            <v-icon color="red darken-2">mdi-radio-tower</v-icon>
+          </div>
+        </template>
         <template v-slot:item.owner="{ item }">
           <span v-html="beautifyEmail(item.owner)"></span>
         </template>
@@ -121,7 +127,7 @@
 
         <template v-slot:item.link_status="{ item }">
           <v-chip label outlined :color="linkStatusColor(item.link_status)" dark>
-            <div class="subtitle-2">{{ toUpper(item.link_status || 'closed') }}</div>
+            <div class="subtitle-2">{{ toUpper(item.link_status || 'off') }}</div>
           </v-chip>
         </template>
 
@@ -335,7 +341,7 @@
             text: 'Link Status',
             value: 'link_status',
             align: 'center',
-            width: 100
+            width: 110
           },
           {
             text: 'History',
@@ -441,9 +447,9 @@
 
       linkStatusColor (link_status) {
         link_status = toLower(link_status)
-        if (link_status == 'active') {
+        if (link_status == 'connected') {
           return 'success'
-        } else if (link_status == 'closed'){
+        } else if (link_status == 'off'){
           return 'red darken-3'
         } else {
           return 'yellow darken-4'

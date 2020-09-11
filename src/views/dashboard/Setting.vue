@@ -102,12 +102,12 @@
                           md="6"
                         >
                           <v-text-field
-                            v-model="editItem.type"
+                            v-model="editItem.site_name"
                             :rules="[rules.required]"
                             :loading="loading"
                             class="mb-5"
                             hide-details="auto"
-                            label="Type"
+                            label="Site Name"
                             prepend-icon="mdi-call-merge"
                             required
                           />
@@ -331,8 +331,8 @@
             value: 'desc'
           },
           {
-            text: 'Type',
-            value: 'type'
+            text: 'Site Name',
+            value: 'site_name'
           },
           {
             text: 'Connection Interval (min)',
@@ -419,9 +419,7 @@
             res.data.map(controller => {
               this.items.push({
                 ...controller,
-                owner: controller.owner,
                 location: controller.city + ', ' +controller.state,
-                type: controller.type
               })
             })
             this.loading = false

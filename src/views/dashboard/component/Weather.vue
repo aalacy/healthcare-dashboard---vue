@@ -13,7 +13,7 @@
         <v-divider />
         <v-sheet tile color="primary" class="pa-2 white--text weather-small">
             <div class="d-flex align-center">
-                <h1 class="display-3 ml-3 font-weight-medium">{{parseInt(main.temp)}}<sup clas="title">o</sup>C</h1>
+                <h1 class="display-3 ml-3 font-weight-medium">{{parseInt(main.temp)}}<sup clas="title">o</sup>F</h1>
                 <div class="ml-auto mr-2">
                   <b>Details</b>
                   <v-divider class="my-1" />
@@ -25,7 +25,7 @@
                       <div>Pressure</div>
                     </div>
                     <div>
-                      <div>{{parseInt(main.feels_like)}}<sup>o</sup>C</div>
+                      <div>{{parseInt(main.feels_like)}}<sup>o</sup>F</div>
                       <div>{{weatherInfo.wind.speed}}&nbsp;m/s</div>
                       <div>{{main.humidity}}&nbsp;%</div>
                       <div>{{main.pressure}}&nbsp;hPa</div>
