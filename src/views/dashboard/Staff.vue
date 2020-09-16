@@ -19,10 +19,8 @@
           single-line
           hide-details
         ></v-text-field>
+        <v-btn v-if="visibleAdd" @click="showAddDlg" color="secondary" dark class="mb-2" :loading="loading"><v-icon size="16" left dark>mdi-plus</v-icon>Add Staff</v-btn>
         <v-dialog v-model="dialog" max-width="720px">
-          <template v-if="visibleAdd" v-slot:activator="{ on }">
-            <v-btn color="secondary" dark class="mb-2" :loading="loading" v-on="on"><v-icon size="16" left dark>mdi-plus</v-icon>Add Staff</v-btn>
-          </template>
           <v-card>
             <v-card-title>
               <span class="headline">{{ formTitle }}</span>
@@ -117,9 +115,10 @@
                       <v-text-field
                         type="number"
                         v-model="editItem.phone"
-                        :rules="[rules.required]"
+                        :rules="[rules.required, rules.counter]"
                         :loading="loading"
                         class="mb-5"
+                        prefix="+1"
                         hide-details="auto"
                         label="Please enter your phone number."
                         prepend-icon="mdi-phone-outline"
@@ -131,6 +130,7 @@
                     <v-col
                       cols="12"
                       md="6"
+                      v-if="defaultIndex==-1"
                     >
                       <v-text-field
                         v-model="editItem.password"
@@ -152,7 +152,7 @@
                       md="6"
                     >
                       <v-select
-                        v-model="editItem.status"
+                        v-model="editItem.active"
                         :loading="loading"
                         :items="statusItems"
                         hide-details="auto"
@@ -184,7 +184,7 @@
                 <v-card-actions>
                   <v-spacer></v-spacer>
                   <v-btn color="secondary" :loading="loading" text @click="close">Cancel</v-btn>
-                  <v-btn color="primary" :loading="loading" text @click="addStaff">Save</v-btn>
+                  <v-btn color="primary" :loading="loading" :disabled="loading || !valid" text @click="actionStaff">Save</v-btn>
                 </v-card-actions>
               </v-container>
             </v-card-text>
@@ -222,6 +222,19 @@
               </v-btn>
             </template>
             <span>{{approveTooltip(item)}}</span>
+          </v-tooltip>
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on }">
+              <v-btn 
+                text 
+                icon 
+                v-on="on"
+                @click.stop="showUpdateStaff(item)"
+              >
+                <v-icon>mdi-pen</v-icon>
+              </v-btn>
+            </template>
+            <span>Update</span>
           </v-tooltip>
           <v-tooltip bottom>
             <template v-slot:activator="{ on }">
@@ -273,7 +286,7 @@
 
 <script>
   import { beautifyEmail } from '../../util'
-  import { getSiteUsers, updateMemberStatus, removeStaff, addStaff, isAdmin } from '../../api'
+  import { getSiteUsers, updateMemberStatus, removeStaff, addStaff, Post, updateStaff, isAdmin } from '../../api'
 
   export default {
     name: 'Owners',
@@ -349,7 +362,7 @@
           confirm: value => {
             return this.form.password == value || 'Password does not match'
           },
-          counter: value => value.length >= 6 || 'Min 6 characters',
+          counter: value => value && value.length == 10 || '10 digits',
           email: value => {
             const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
             return pattern.test(value) || 'Invalid e-mail.'
@@ -402,10 +415,24 @@
         this.loading = false
       },
 
+      showAddDlg () {
+        this.editItem = Object.assign({}, this.defaultItem)
+        this.defaultIndex = -1
+        this.dialog = true
+      },
+
+      showUpdateStaff (item) {
+        this.editItem = Object.assign({}, item)
+        this.editItem.phone = this.editItem.phone.substr(1)
+        this.editItem.password = ''
+        this.defaultIndex = this.users.indexOf(item)
+        this.dialog = true
+      },
+
       close () {
         this.dialog = false
         setTimeout(() => {
-          this.editedItem = Object.assign({}, this.defaultItem)
+          this.editItem = Object.assign({}, this.defaultItem)
           this.defaultIndex = -1
         }, 300)
       },
@@ -441,7 +468,6 @@
       },
 
       async toggleUser (item) {
-        console.log(item)
         this.loading = true
         try {
           const res = await updateMemberStatus(item.email, !item.active)
@@ -460,6 +486,50 @@
           console.log(e)
         }
         this.loading = false
+      },
+
+      actionStaff () {
+        if (this.defaultIndex == -1) {
+          this.addStaff()
+        } else {
+          this.updateStaff()
+        }
+      },
+
+      updateStaff () {
+        this.$refs.form.validate()
+        if (this.valid) {
+          const self = this
+          this.$dialog.confirm({
+            text: 'Do you really want to update this staff?',
+            title: 'Warning',
+            actions: {
+              false: 'No',
+              true: {
+                color: 'red',
+                text: 'Yes',
+                handle: () => {
+                  self._updateStaff()
+                }
+              }
+            }
+          })
+        }
+      },
+
+      async _updateStaff () {
+        this.loading = true
+        const data = Object.assign({}, this.editItem)
+        data.phone = `1${data.phone}`
+        const res = await Post(`auth/update/profile`, data)
+        this.snackText = res.message
+        this.snackColor = res.status
+        this.snackbar = true
+        if (res.status == 'success') {
+          Object.assign(this.users[this.defaultIndex], data)
+        }
+        this.loading = false
+        this.close()
       },
 
       addStaff() {
@@ -485,7 +555,9 @@
 
       async _addStaff() {
         this.loading = true
-        const res = await addStaff(this.editItem)
+        const data = Object.assign({}, this.editItem)
+        data.phone = `1${data.phone}`
+        const res = await addStaff(data)
         this.snackText = res.message
         this.snackColor = res.status
         this.snackbar = true
@@ -501,21 +573,21 @@
         this.loading = true
         try {
           const data = await axios({
-              url: `${BASE_API}/api/admin/rss/delete`,
-              data: this.editItem,
-              method: 'POST'
-            })
-            this.snackText = data.data.message
-            this.snackColor = data.data.status
-            if (data.data.status == 'success') {
-              this.users.splice(this.defaultIndex, 1)
-              this.dialog = false
-            }
+            url: `${BASE_API}/api/admin/rss/delete`,
+            data: this.editItem,
+            method: 'POST'
+          })
+          this.snackText = data.data.message
+          this.snackColor = data.data.status
+          if (data.data.status == 'success') {
+            this.users.splice(this.defaultIndex, 1)
+            this.dialog = false
+          }
         } catch(e) {
           this.snackText = 'Something wrong happened on the server.'
         } finally {
-            this.loading = false
-            this.snackbar = true
+          this.loading = false
+          this.snackbar = true
         }
       },
     }

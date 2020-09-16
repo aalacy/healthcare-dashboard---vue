@@ -254,6 +254,15 @@ export const addStaff = async(item) => {
 	return await Post('auth/create', data)
 }
 
+export const updateStaff = async(item) => {
+	const data = {
+		site_id: localStorage.getItem('site_id'),
+		...item,
+	}
+	return await Post('auth/update', data)
+}
+
+
 /*
 *	User profile
 */
