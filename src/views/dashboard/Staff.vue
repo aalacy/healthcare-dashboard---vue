@@ -155,6 +155,7 @@
                         v-model="editItem.active"
                         :loading="loading"
                         :items="statusItems"
+                        :rules="[rules.required]"
                         hide-details="auto"
                         chips
                         small
@@ -170,6 +171,7 @@
                       <v-select
                         v-model="editItem.role"
                         :loading="loading"
+                        :rules="[rules.required]"
                         :items="roleItems"
                         hide-details="auto"
                         class="mb-5"
@@ -344,7 +346,11 @@
       ],
       defaultIndex: -1,
       editItem: {
-        status: true,
+        active: true,
+        role: 'member',
+      },
+      defaultItem: {
+        active: true,
         role: 'member',
       },
       statusItems: [
