@@ -41,7 +41,7 @@
                         :loading="loading"
                         :rules="[rules.required]"
                         hide-details="auto"
-                        class="my-5"
+                        class="mb-5"
                         label="First Name"
                         prepend-icon="mdi-account-outline"
                         required
