@@ -145,7 +145,7 @@
     >
       <v-card>
         <div class="font-weight-medium display-1 d-flex justify-space-between align-center ml-6 mr-2 pt-5">
-          <div>History - {{siteId}}</div>
+          <div>History - {{ curControllerId }}</div>
           <v-btn text icon @click="historyDialog = false">
             <v-icon>mdi-close</v-icon>
           </v-btn>
@@ -402,6 +402,7 @@
         controllers: [],
         historyControllers: [],
         selectedDates: [],
+        curControllerId: {}
       }
     },
 
@@ -411,7 +412,7 @@
     },
 
     computed: {
-      ...mapState(['siteId']),
+      // ...mapState(['siteId']),
       computedDateFormatted () {
       if (this.selectedDates.length) {
         return this.selectedDates[0] + ' ~ ' + this.selectedDates[1]
@@ -490,6 +491,8 @@
         this.snack = true
         this.historyControllers = res.data
         this.historyDialog = true
+        console.log(item)
+        this.curControllerId = item.controller_id
       },
 
       async openValve (item) {
