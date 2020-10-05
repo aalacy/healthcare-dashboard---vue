@@ -192,7 +192,7 @@
           <v-data-table
           :loading="loading"
           :headers="headers"
-          :items="items"
+          :items="controllers"
           item-key="id"
           :items-per-page="5"
           :search="search"
@@ -277,276 +277,276 @@
 </template>
 
 <script>
-    import stateCities from 'state-cities'
-    import { beautifyEmail } from '../../util'
-    import { deleteController, fetchAllControllers, createController, updateController } from '../../api'
+  import stateCities from 'state-cities'
+  import { mapActions, mapState } from 'vuex'
+  import { beautifyEmail } from '../../util'
+  import { deleteController, fetchAllControllers, createController, updateController } from '../../api'
+  export default {
+    name: 'Root',
 
-    export default {
-      name: 'Root',
-
-      data: () => ({
-        loading: false,
-        valid: true,
-        search: '',
-        snackbar: false,
-        snackColor: '',
-        snackText: '',
-        dialog: false,
-        dateMenu: false,
-        modal: false,
-        items: [],
-        members: [
-          'admin',
-          'bradcole'
-        ],
-        statusItems: [
-          {text: "Open", value: "opened"},
-          {text: "Close", value: "closed"},
-          {text: "Partial Open", value: "partial_opened"},
-        ],
-        eventNames: [
-          'BZW - Blizzard Warning',
-          'CFA - Coastal Flood Watch',
-          'CFW - Coastal Flood Warning',
-          'DSW - Dust Storm Warning',
-          'EWW - Extreme Wind Warning',
-          'FFA - Flash Flood Watch'
-        ],
-        curItem: null,
-        headers: [
-          {
-           text: 'Site',
-           value: 'site_id'
-          },
-          {
-            text: 'Device Id',
-            value: 'controller_id'
-          },
-          {
-            text: 'Location',
-            value: 'location'
-          },
-          {
-            text: 'Description',
-            value: 'desc'
-          },
-          {
-            text: 'Site Name',
-            value: 'site_name'
-          },
-          {
-            text: 'Connection Interval (min)',
-            value: 'interval'
-          },
-          {
-            text: 'Valve Open Time (min)',
-            value: 'open_duration'
-          },
-          // {
-          //   text: 'Current Water Elevation',
-          //   value: 'water_elevation'
-          // },
-          {
-            text: 'Minimum Water Elevation',
-            value: 'minimum_elevation'
-          },
-          { text: 'Actions', value: 'action', sortable: false, width: 180, align: 'center' },
-        ],
-          defaultIndex: -1,
-          editItem: {
-            connection_interval: 1
-          },
-          defaultItem: {
-
-          },
-          rules: {
-            required: value => {
-              return !!value || 'This field is required.'
-            },
-          }
-      }),
-
-      mounted () {
-        this.loadControllers()  
+    data: () => ({
+      valid: true,
+      search: '',
+      snackbar: false,
+      snackColor: '',
+      snackText: '',
+      dialog: false,
+      dateMenu: false,
+      modal: false,
+      members: [
+        'admin',
+        'bradcole'
+      ],
+      statusItems: [
+        {text: "Open", value: "opened"},
+        {text: "Close", value: "closed"},
+        {text: "Partial Open", value: "partial_opened"},
+      ],
+      eventNames: [
+        'BZW - Blizzard Warning',
+        'CFA - Coastal Flood Watch',
+        'CFW - Coastal Flood Warning',
+        'DSW - Dust Storm Warning',
+        'EWW - Extreme Wind Warning',
+        'FFA - Flash Flood Watch'
+      ],
+      curItem: null,
+      headers: [
+        {
+         text: 'Site',
+         value: 'site_id'
+        },
+        {
+          text: 'Device Id',
+          value: 'controller_id'
+        },
+        {
+          text: 'Location',
+          value: 'location'
+        },
+        {
+          text: 'Description',
+          value: 'desc'
+        },
+        // {
+        //   text: 'Site Name',
+        //   value: 'site_name'
+        // },
+        {
+          text: 'Connection Interval (min)',
+          value: 'interval'
+        },
+        {
+          text: 'Valve Open Time (min)',
+          value: 'open_duration'
+        },
+        // {
+        //   text: 'Current Water Elevation',
+        //   value: 'water_elevation'
+        // },
+        {
+          text: 'Minimum Water Elevation',
+          value: 'minimum_elevation'
+        },
+        { text: 'Actions', value: 'action', sortable: false, width: 180, align: 'center' },
+      ],
+      defaultIndex: -1,
+      editItem: {
+        connection_interval: 1
       },
-
-      computed: {
-        formTitle () {
-          return this.defaultIndex === -1 ? 'Add Controller' : 'Edit Controller'
-        },
-        states () {
-          return stateCities.getStates()
-        },
+      defaultItem: {
       },
-
-      methods: {
-        beautifyEmail,
-
-        cities (state) {
-          if (state) {
-            return stateCities.getCities(state)
-          } else {
-            return []
-          }
+      rules: {
+        required: value => {
+          return !!value || 'This field is required.'
         },
-
-        returnToRoot() {
-          localStorage.removeItem('custom')
-          localStorage.removeItem('site_id')
-          this.$router.push({name: 'Users'})
-        },
-
-          showSnack (res) {
-            this.snackText = res.message
-            this.snackColor = res.status
-            this.snackbar = true
-          },
-
-          close () {
-            this.dialog = false
-          },
-
-          configureFLS (item) {
-            this.$router.push({ path: `/configure/${item.controller_id}`})
-          },
-
-          async loadControllers() {
-            this.loading = 'secondary'
-            const res = await fetchAllControllers()
-            this.snackText = res.message
-            this.snackColor = res.status
-            this.snack = true
-            res.data.map(controller => {
-              this.items.push({
-                ...controller,
-                location: controller.city + ', ' +controller.state,
-              })
-            })
-            this.loading = false
-          },
-
-          closeDialog () {
-            this.dialog = false
-            setTimeout(() => {
-              this.defaultItem = Object.assign({}, this.defaultItem)
-              this.defaultIndex = -1
-            }, 300)
-          },
-
-          editController (item) {
-            const self = this
-            this.$dialog.confirm({
-              text: 'Do you really want to update the controller?',
-              title: 'Warning',
-              actions: {
-                false: 'No',
-                true: {
-                  color: 'red',
-                  text: 'Yes',
-                  handle: () => {
-                    self._updateController(item)
-                  }
-                }
-              }
-            })  
-          },
-
-          async _updateController(item) {
-            this.loading = true
-            const res = await updateController(item)
-            this.showSnack(res)
-            if (res.status == 'success') {
-              Object.assign(this.items[this.defaultIndex], this.editItem)
-            }
-            this.loading = false
-          },
-
-          showEditDlg (item) {
-            this.defaultIndex = this.items.indexOf(item)
-            this.editItem = Object.assign({}, item)
-            this.dialog = true
-          },
-
-          addValve () {
-            this.defaultIndex = -1
-            this.editItem = Object.assign({}, this.defaultItem)
-            this.dialog = true
-          },
-
-          addController (item) {
-            const self = this
-            this.$dialog.confirm({
-              text: 'Are you sure you want to add a new controller?',
-              title: 'Warning',
-              actions: {
-                false: 'No',
-                true: {
-                  color: 'red',
-                  text: 'Yes',
-                  handle: () => {
-                    self._createController(item)
-                  }
-                }
-              }
-            })  
-          },
-
-          async _createController (item) {
-            this.loading = true
-            const res = await createController(item)
-            item.controller_id = res.controller_id
-            this.showSnack(res)
-            if (res.status == 'success') {
-              this.items.push(res.controller)
-            }
-            this.loading = false
-            this.closeDialog()
-          },
-
-          async actionController () {
-            this.$refs.form.validate()
-            if (!this.valid) {
-              return
-            }
-            const item = Object.assign({}, this.editItem)
-            let res = {
-              status: 'success' 
-            }
-            if (this.defaultIndex > -1) {
-              this.editController(item)
-            } else {
-              this.addController(item)
-            }
-            // 
-          },
-
-          delController (item) {
-            const self = this
-            this.$dialog.confirm({
-              text: 'Do you really want to remove this controller?',
-              title: 'Warning',
-              actions: {
-                false: 'No',
-                true: {
-                  color: 'red',
-                  text: 'Yes',
-                  handle: () => {
-                    self._delete(item)
-                  }
-                }
-              }
-            })  
-          },
-
-          async _delete(item) {
-            this.loading = true
-            const res = await deleteController(item.controller_id)
-            if (res.status == 'success') {
-              this.items = this.items.filter(_item => _item.controller_id != item.controller_id)
-            } 
-            this.showSnack(res)
-            this.loading = false
-          }
       }
+    }),
+
+    mounted () {
+      this.getControllers()  
+    },
+
+    computed: {
+      ...mapState('site', ['controllers', 'loading']),
+      formTitle () {
+        return this.defaultIndex === -1 ? 'Add Controller' : 'Edit Controller'
+      },
+      states () {
+        return stateCities.getStates()
+      },
+    },
+
+    methods: {
+      ...mapActions('site', ['getControllers', 'updateController']),
+
+      beautifyEmail,
+
+      cities (state) {
+        if (state) {
+          return stateCities.getCities(state)
+        } else {
+          return []
+        }
+      },
+
+      returnToRoot() {
+        localStorage.removeItem('custom')
+        localStorage.removeItem('site_id')
+        this.$router.push({name: 'Users'})
+      },
+
+      showSnack (res) {
+        this.snackText = res.message
+        this.snackColor = res.status
+        this.snackbar = true
+      },
+
+      close () {
+        this.dialog = false
+      },
+
+      configureFLS (item) {
+        this.$router.push({ path: `/configure/${item.controller_id}`})
+      },
+
+      async loadControllers() {
+        this.loading = 'secondary'
+        const res = await fetchAllControllers()
+        this.snackText = res.message
+        this.snackColor = res.status
+        this.snack = true
+        res.data.map(controller => {
+          this.items.push({
+            ...controller,
+            location: controller.city + ', ' +controller.state,
+          })
+        })
+        this.loading = false
+      },
+
+      closeDialog () {
+        this.dialog = false
+        setTimeout(() => {
+          this.defaultItem = Object.assign({}, this.defaultItem)
+          this.defaultIndex = -1
+        }, 300)
+      },
+
+      editController (item) {
+        const self = this
+        this.$dialog.confirm({
+          text: 'Do you really want to update the controller?',
+          title: 'Warning',
+          actions: {
+            false: 'No',
+            true: {
+              color: 'red',
+              text: 'Yes',
+              handle: () => {
+                self._updateController(item)
+              }
+            }
+          }
+        })  
+      },
+
+      async _updateController(item) {
+        this.loading = true
+        const res = await updateController(item)
+        this.showSnack(res)
+        if (res.status == 'success') {
+          Object.assign(this.controllers[this.defaultIndex], this.editItem)
+        }
+        this.loading = false
+      },
+
+      showEditDlg (item) {
+        this.defaultIndex = this.controllers.indexOf(item)
+        this.editItem = Object.assign({}, item)
+        this.dialog = true
+      },
+
+      addValve () {
+        this.defaultIndex = -1
+        this.editItem = Object.assign({}, this.defaultItem)
+        this.dialog = true
+      },
+
+      addController (item) {
+        const self = this
+        this.$dialog.confirm({
+          text: 'Are you sure you want to add a new controller?',
+          title: 'Warning',
+          actions: {
+            false: 'No',
+            true: {
+              color: 'red',
+              text: 'Yes',
+              handle: () => {
+                self._createController(item)
+              }
+            }
+          }
+        })  
+      },
+
+      async _createController (item) {
+        this.loading = true
+        const res = await createController(item)
+        item.controller_id = res.controller_id
+        this.showSnack(res)
+        if (res.status == 'success') {
+          this.items.push(res.controller)
+        }
+        this.loading = false
+        this.closeDialog()
+      },
+
+      async actionController () {
+        this.$refs.form.validate()
+        if (!this.valid) {
+          return
+        }
+        const item = Object.assign({}, this.editItem)
+        let res = {
+          status: 'success' 
+        }
+        if (this.defaultIndex > -1) {
+          this.editController(item)
+        } else {
+          this.addController(item)
+        }
+        // 
+      },
+
+      delController (item) {
+        const self = this
+        this.$dialog.confirm({
+          text: 'Do you really want to remove this controller?',
+          title: 'Warning',
+          actions: {
+            false: 'No',
+            true: {
+              color: 'red',
+              text: 'Yes',
+              handle: () => {
+                self._delete(item)
+              }
+            }
+          }
+        })  
+      },
+
+      async _delete(item) {
+        this.loading = true
+        const res = await deleteController(item.controller_id)
+        if (res.status == 'success') {
+          this.items = this.items.filter(_item => _item.controller_id != item.controller_id)
+        } 
+        this.showSnack(res)
+        this.loading = false
+      } 
+    }
   }
 </script>

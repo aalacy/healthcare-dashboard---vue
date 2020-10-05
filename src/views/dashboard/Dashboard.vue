@@ -121,7 +121,7 @@
 
         <template v-slot:item.valve_status="{ item }">
           <v-chip label outlined :color="valveStatusColor(item.valve_status)" dark>
-            <div class="subtitle-2">{{ toUpper(item.valve_status) }}</div>
+            <div class="subtitle-2">{{ displayStatus(item.valve_status) }}</div>
           </v-chip>
         </template>
 
@@ -129,6 +129,10 @@
           <v-chip label outlined :color="linkStatusColor(item.link_status)" dark>
             <div class="subtitle-2">{{ toUpper(item.link_status || 'off') }}</div>
           </v-chip>
+        </template>
+
+        <template v-slot:item.battery_voltage="{ item }">
+          <div>{{ batteryVoltage(item.battery_voltage)}}</div>
         </template>
 
         <template v-slot:item.error="{ item }">
@@ -200,7 +204,7 @@
           >
             <template v-slot:item.valve_status="{ item }">
               <v-chip label outlined :color="valveStatusColor(item.valve_status)" dark>
-                <div class="subtitle-2">{{ toUpper(item.valve_status) }}</div>
+                <div class="subtitle-2">{{ displayStatus(item.valve_status) }}</div>
               </v-chip>
             </template>
 
@@ -217,9 +221,9 @@
 </template>
 
 <script>
-  import { beautifyEmail } from '../../util'
+  import { beautifyEmail, VALVE_STATUS } from '../../util'
   import { fetchAllControllers, fetchSiteHistory, updateController, updateControllerValve } from '../../api'
-  import { mapState } from 'vuex'
+  import { mapState, mapActions } from 'vuex'
   import { toUpper, toLower } from 'lodash'
 
   export default {
@@ -227,7 +231,6 @@
 
     data () {
       return {
-        loading: true,
         loadingHistory: false,
         menu: false,
         search: '',
@@ -399,10 +402,9 @@
           //   width: 120
           // },
         ],
-        controllers: [],
         historyControllers: [],
         selectedDates: [],
-        curControllerId: {}
+        curControllerId: {},
       }
     },
 
@@ -412,38 +414,53 @@
     },
 
     computed: {
-      // ...mapState(['siteId']),
+      ...mapState('site', ['controllers', 'loading']),
       computedDateFormatted () {
-      if (this.selectedDates.length) {
-        return this.selectedDates[0] + ' ~ ' + this.selectedDates[1]
-      } else {
-        return ''
-      }
+        if (this.selectedDates.length) {
+          return this.selectedDates[0] + ' ~ ' + this.selectedDates[1]
+        } else {
+          return ''
+        }
       }
     },
 
     async mounted () {
-      this.fetchSiteControllers()
+      this.getControllers()
     },
 
     methods: {
+      ...mapActions('site', ['getControllers', 'setLoading']),
+
       beautifyEmail,
       toUpper,
       toLower,
+
+      batteryVoltage (battery_voltage) {
+        battery_voltage = battery_voltage || '0'
+        return parseFloat(battery_voltage)/10
+      },
 
       disabledControl (item, status) {
         return item.valve_status == status
       },
 
       valveStatusColor (valve_status) {
-        valve_status = toLower(valve_status)
-        if (valve_status == 'opened') {
+        valve_status = toLower(this.displayStatus(valve_status))
+        if (valve_status == 'open') {
           return 'success'
-        } else if (valve_status == 'closed') {
+        } else if (valve_status == 'close') {
           return 'red darken-3'
         } else {
           return 'yellow darken-4'
         }
+      },
+
+      displayStatus (status) {
+        let valve_status = ''
+        try {
+          valve_status = VALVE_STATUS[status]
+        } catch (e) {console.log(e)}
+        return valve_status
       },
 
       linkStatusColor (link_status) {
@@ -491,41 +508,31 @@
         this.snack = true
         this.historyControllers = res.data
         this.historyDialog = true
-        console.log(item)
         this.curControllerId = item.controller_id
       },
 
-      async openValve (item) {
-        this.loading = true
+      async controlValve(item, status) {
+        this.setLoading('secondary')
+        item.link_status = 'In Progress'
         const new_item = Object.assign({}, item)
-        new_item.valve_status = 'opened'
+        new_item.valve_status = status
         const res = await updateControllerValve(new_item)
         if (res.status == 'success') {
-          item.valve_status = 'opened'
+          item.valve_status = status
         }
-        this.loading = false
+        this.setLoading(false)
+      },
+
+      async openValve (item) {
+        this.controlValve(item, 0)
       },
 
       async partialOpenValve (item) {
-        this.loading = true
-        const new_item = Object.assign({}, item)
-        new_item.valve_status = 'partial_opened'
-        const res = await updateControllerValve(new_item)
-        if (res.status == 'success') {
-          item.valve_status = 'partial_opened'
-        }
-        this.loading = false
+        this.controlValve(item, 1)
       },
 
       async closeValve (item) {
-        this.loading = true
-        const new_item = Object.assign({}, item)
-        new_item.valve_status = 'closed'
-        const res = await updateControllerValve(new_item)
-        if (res.status == 'success') {
-          item.valve_status = 'closed'
-        }
-        this.loading = false
+        this.controlValve(item, 2)
       },
 
       filterRange (date) {

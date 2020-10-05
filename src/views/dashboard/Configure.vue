@@ -36,17 +36,17 @@
               md="4"
             >
               <v-select
-                  :loading="loading"
-                  v-model="command"
-                  :items="commands"
-                  attach
-                  chips
-                  label="Select a command"
-                  required
-                ></v-select>
-              </v-col>
-            <v-btn class="ml-3" color="success" :loading="loading" :disabled="loading || !command" @click="submit">Submit</v-btn>
-          </v-row>
+                :loading="loading"
+                v-model="command"
+                :items="commands"
+                attach
+                chips
+                label="Select a command"
+                required
+              ></v-select>
+            </v-col>
+          <v-btn class="ml-3" color="success" :loading="loading" :disabled="loading || !command" @click="submit">Submit</v-btn>
+        </v-row>
           
           <template v-if="command && command !='Clear all event codes'" class="mt-2">
             <v-card outlined>
@@ -232,9 +232,9 @@
                             :loading="loading"
                             :rules="[rules.required, rules.number]"
                             hide-details="auto"
-                            class="mb-5"
                             label="Connection Period"
                             hint="Time between status packets sent to web site in minutes (min 1, max 255)"
+                            persistent-hint
                             required
                           />
                         </v-col>
@@ -248,9 +248,9 @@
                             :loading="loading"
                             :rules="[rules.required, rules.number2]"
                             hide-details="auto"
-                            class="mb-5"
                             label="STUCK VALVE ALARM in MINUTES"
-                            hint="Time to transition (open-to-closed or closed-to-open) in seconds (min 1, max 255)"
+                            hint="Time to transition (open-to-closed or closed-to-open) in seconds (min 1, max 1800)"
+                            persistent-hint
                             required
                           />
                         </v-col>
@@ -265,9 +265,9 @@
                             :rules="[rules.required]"
                             hide-details="auto"
                             chips
-                            class="mb-5"
                             label="WB Chan"
                             hint="Weather band receiver channel"
+                            persistent-hint
                             required
                           />
                         </v-col>
@@ -281,9 +281,9 @@
                             :loading="loading"
                             :rules="[rules.required, rules.number]"
                             hide-details="auto"
-                            class="mb-5"
                             label="RSSI"
                             hint="Threshold to report low signal in dB (min 1, max 255)"
+                            persistent-hint
                             required
                           />
                         </v-col>
@@ -440,39 +440,44 @@
           configs: 'Commands'
         },
         events: [
-          {text: 'Costal Flood Watch', value: '1'},
-          {text: 'Costal Flood Warning', value: '2'},
-          {text: 'Flash Flood Watch', value: '3'},
-          {text: 'Flash Flood Warning', value: '4'},
-          {text: 'Flood Watch', value: '5'},
-          {text: 'Flood Warning', value: '6'},
-          {text: 'Hurricane Watch', value: '7'},
-          {text: 'Hurricane Warning', value: '8'},
-          {text: 'Severe Thunderstorm Watch', value: '9'},
-          {text: 'Severe Thunderstorm Warning', value: '10'},
-          {text: 'Storm Surge Watch', value: '12'},
-          {text: 'Storm Surge Warning', value: '13'},
-          {text: 'Tropical Storm Watch', value: '14'},
-          {text: 'Tropical Storm Warning', value: '15'},
-          {text: 'Lost NWS Signal', value: '16'},
-          {text: 'FLS Open Valve', value: '17'},
-          {text: 'FLS Partial Valve', value: '18'},
-          {text: 'FLS CLose Valve', value: '19'},
-          {text: 'Battery Low', value: '20'},
-          {text: 'Battery High', value: '21'},
+          {text: 'Costal Flood Watch', value: 'event1_action'},
+          {text: 'Costal Flood Warning', value: 'event2_action'},
+          {text: 'Flash Flood Watch', value: 'event3_action'},
+          {text: 'Flash Flood Warning', value: 'event4_action'},
+          {text: 'Flood Watch', value: 'event5_action'},
+          {text: 'Flood Warning', value: 'event6_action'},
+          {text: 'Hurricane Watch', value: 'event7_action'},
+          {text: 'Hurricane Warning', value: 'event8_action'},
+          {text: 'Severe Thunderstorm Watch', value: 'event9_action'},
+          {text: 'Severe Thunderstorm Warning', value: 'event10_action'},
+          {text: 'Special Marine Warning', value: 'event11_action'},
+          {text: 'Storm Surge Watch', value: 'event12_action'},
+          {text: 'Storm Surge Warning', value: 'event13_action'},
+          {text: 'Tropical Storm Watch', value: 'event14_action'},
+          {text: 'Tropical Storm Warning', value: 'event15_action'},
+          // {text: 'Lost NWS Signal', value: '16'},
+          // {text: 'FLS Open Valve', value: '17'},
+          // {text: 'FLS Partial Valve', value: '18'},
+          // {text: 'FLS CLose Valve', value: '19'},
+          // {text: 'Battery Low', value: '20'},
+          // {text: 'Battery High', value: '21'},
         ],
         actions: [
-          'No Action',
-          'Notify',
-          'Notify and Energize Relay',
-          'Notify and Deenergize Relay',
-          'RWT',
+          {text: 'No Action', value: '0'},
+          {text: 'Notify Only', value: '1'},
+          {text: 'Notify and Close Valve', value: '2'},
+          {text: 'Notify and Open Valve', value: '3'},
+          {text: 'Notify and Partial Open Valve', value: '4'},
+          {text: 'Notify and Open to Water Height', value: '5'},
         ],
         relays: [
-          'None',
-          'Relay 1 only',
-          'Relay 2 only',
-          'Both Relays 1 & 2',
+          {text: 'OPEN relay', value: '1'},
+          {text: 'CLOSE relay', value: '2'},
+          {text: 'STOP relay', value: '4'},
+          {text: 'AUX relay', value: '8'},
+          {text: 'OUT1 relay', value: '0x10'},
+          {text: 'OUT2 relay', value: '0x20'},
+          {text: 'OUT3 relay', value: '0x40'},
         ],
         command: '',
         commands: [
@@ -487,305 +492,305 @@
         controller_id: -1,
         headers: [],
         historyHeaders: {
-          fips: [
-            {
-              text: 'Fips Code #1',
-              value: 'fips_1',
-              align: 'center'
-            },
-            {
-              text: 'Fips Code #2',
-              value: 'fips_2',
-              align: 'center'
-            },
-            {
-              text: 'Fips Code #3',
-              value: 'fips_3',
-              align: 'center'
-            },
-            {
-              text: 'Fips Code #4',
-              value: 'fips_4',
-              align: 'center'
-            },
-            {
-              text: 'Sent',
-              value: 'sent',
-              align: 'center'
-            },
-            {
-              text: 'Status',
-              value: 'status',
-              align: 'center'
-            }
-          ],
-          events: [
-            {
-              text: 'Id',
-              value: 'command_id',
-              align: 'center'
-            },
-            {
-              text: 'Event Code',
-              value: 'event_code',
-              align: 'center'
-            },
-            {
-              text: 'Action',
-              value: 'action',
-              align: 'center'
-            },
-            {
-              text: 'NWS Valve Open Time (min) ',
-              value: 'valve_open_time',
-              align: 'center'
-            },
-            {
-              text: 'Relays',
-              value: 'relays',
-              align: 'center'
-            },
-          ],
-          configs: [
-            {
-              text: 'Connection Period',
-              value: 'connection_period',
-              align: 'center'
-            },
-            {
-              text: 'Stuck Valve',
-              value: 'stuck_valve',
-              align: 'center'
-            },
-            {
-              text: 'Web chan',
-              value: 'web_chan',
-              align: 'center'
-            },
-            {
-              text: 'RSSI',
-              value: 'rssi_threshold',
-              align: 'center'
-            },
-            {
-              text: 'Bat OV',
-              value: 'bat_ov',
-              align: 'center'
-            },
-            {
-              text: 'Bat UV',
-              value: 'bat_uv',
-              align: 'center'
-            },
-            {
-              text: 'Sent',
-              value: 'sent',
-              align: 'center'
-            },
-            {
-              text: 'Status',
-              value: 'status',
-              align: 'center'
-            }
-          ],
-        },
-        defaultHeaders : {
-          maintain: [
-            {
-              text: 'Id',
-              value: 'id',
-              align: 'center'
-            },
-            {
-              text: 'Maintain Connection',
-              value: 'maintain_connection',
-              align: 'center'
-            },
-            {
-              text: 'Sent On',
-              value: 'sent_on',
-              align: 'center'
-            },
-            {
-              text: 'Received On',
-              value: 'received_on',
-              align: 'center'
-            },
-            {
-              text: 'Status',
-              value: 'status',
-              align: 'center'
-            }
-          ],
-          event_code: [
-            {
-              text: 'Id',
-              value: 'command_id',
-              align: 'center'
-            },
-            {
-              text: 'Event Code',
-              value: 'event_code',
-              align: 'center'
-            },
-            {
-              text: 'Action',
-              value: 'action',
-              align: 'center'
-            },
-            {
-              text: 'Timeout',
-              value: 'timeout',
-              align: 'center'
-            },
-            {
-              text: 'Relays',
-              value: 'relays',
-              align: 'center'
-            },
-          ],
-            fips12: [
-            {
-              text: 'Id',
-              value: 'id',
-              align: 'center'
-            },
-            {
-              text: 'Fips Code #1',
-              value: 'code_1',
-              align: 'center'
-            },
-            {
-              text: 'Fips Code #2',
-              value: 'code_2',
-              align: 'center'
-            },
-            {
-              text: 'Sent On',
-              value: 'sent_on',
-              align: 'center'
-            },
-            {
-              text: 'Received On',
-              value: 'received_on',
-              align: 'center'
-            },
-            {
-              text: 'Status',
-              value: 'status',
-              align: 'center'
-            }
-          ],
-          fips34: [
-            {
-              text: 'Id',
-              value: 'id',
-              align: 'center'
-            },
-            {
-              text: 'Fips Code #3',
-              value: 'code_3',
-              align: 'center'
-            },
-            {
-              text: 'Fips Code #4',
-              value: 'code_4',
-              align: 'center'
-            },
-            {
-              text: 'Sent On',
-              value: 'sent_on',
-              align: 'center'
-            },
-            {
-              text: 'Received On',
-              value: 'received_on',
-              align: 'center'
-            },
-            {
-              text: 'Status',
-              value: 'status',
-              align: 'center'
-            }
-          ],
-          config: [
-            {
-              text: 'Id',
-              value: 'id',
-              align: 'center'
-            },
-            {
-              text: 'Connection Period',
-              value: 'conn_period',
-              align: 'center'
-            },
-            {
-              text: 'Stuck Valve',
-              value: 'stuck_valve',
-              align: 'center'
-            },
-            {
-              text: 'Web chan',
-              value: 'WB_chan',
-              align: 'center'
-            },
-            {
-              text: 'RSSI',
-              value: 'RSSI',
-              align: 'center'
-            },
-            {
-              text: 'Bat OV',
-              value: 'bat_ov',
-              align: 'center'
-            },
-            {
-              text: 'Bat UV',
-              value: 'bat_uv',
-              align: 'center'
-            },
-            {
-              text: 'Sent On',
-              value: 'sent_on',
-              align: 'center'
-            },
-            {
-              text: 'Received On',
-              value: 'received_on',
-              align: 'center'
-            },
-            {
-              text: 'Status',
-              value: 'status',
-              align: 'center'
-            }
-          ],
-      },
-        rules: {
-            required: value => {
-              return !!value || 'This field is required.'
-            },
-            number: value => {
-              return (value > 0 && value <= 255) || 'Please input value between 1 and 255'
-            },
-            number1: value => {
-              return (value > 0 && value <= 2880) || 'Please input value between 1 and 255'
-            },
-            number1: value => {
-              return (value > 0 && value <= 1800) || 'Please input value between 1 and 255'
-            },
-            chan: value => {
-              return (value > 0 && value <= 7) || 'Please input value between 1 and 255'
-            }
+        fips: [
+          {
+            text: 'Fips Code #1',
+            value: 'fips_1',
+            align: 'center'
           },
-          config: {},
-          fips12: {},
-          fips34: {},
-          event: {},
-          confValid: true,
-          fips12Valid: true,
-          fips34Valid: true,
-          eventCodeValid: true,
+          {
+            text: 'Fips Code #2',
+            value: 'fips_2',
+            align: 'center'
+          },
+          {
+            text: 'Fips Code #3',
+            value: 'fips_3',
+            align: 'center'
+          },
+          {
+            text: 'Fips Code #4',
+            value: 'fips_4',
+            align: 'center'
+          },
+          {
+            text: 'Sent',
+            value: 'sent',
+            align: 'center'
+          },
+          {
+            text: 'Status',
+            value: 'status',
+            align: 'center'
+          }
+        ],
+        events: [
+          {
+            text: 'Id',
+            value: 'command_id',
+            align: 'center'
+          },
+          {
+            text: 'Event Code',
+            value: 'event_code',
+            align: 'center'
+          },
+          {
+            text: 'Action',
+            value: 'action',
+            align: 'center'
+          },
+          {
+            text: 'NWS Valve Open Time (min) ',
+            value: 'valve_open_time',
+            align: 'center'
+          },
+          {
+            text: 'Relays',
+            value: 'relays',
+            align: 'center'
+          },
+        ],
+        configs: [
+          {
+            text: 'Connection Period',
+            value: 'connection_period',
+            align: 'center'
+          },
+          {
+            text: 'Stuck Valve',
+            value: 'stuck_valve',
+            align: 'center'
+          },
+          {
+            text: 'Web chan',
+            value: 'web_chan',
+            align: 'center'
+          },
+          {
+            text: 'RSSI',
+            value: 'rssi_threshold',
+            align: 'center'
+          },
+          {
+            text: 'Bat OV',
+            value: 'bat_ov',
+            align: 'center'
+          },
+          {
+            text: 'Bat UV',
+            value: 'bat_uv',
+            align: 'center'
+          },
+          {
+            text: 'Sent',
+            value: 'sent',
+            align: 'center'
+          },
+          {
+            text: 'Status',
+            value: 'status',
+            align: 'center'
+          }
+        ],
+      },
+      defaultHeaders : {
+        maintain: [
+          {
+            text: 'Id',
+            value: 'id',
+            align: 'center'
+          },
+          {
+            text: 'Maintain Connection',
+            value: 'maintain_connection',
+            align: 'center'
+          },
+          {
+            text: 'Sent On',
+            value: 'sent_on',
+            align: 'center'
+          },
+          {
+            text: 'Received On',
+            value: 'received_on',
+            align: 'center'
+          },
+          {
+            text: 'Status',
+            value: 'status',
+            align: 'center'
+          }
+        ],
+        event_code: [
+          {
+            text: 'Id',
+            value: 'command_id',
+            align: 'center'
+          },
+          {
+            text: 'Event Code',
+            value: 'event_code',
+            align: 'center'
+          },
+          {
+            text: 'Action',
+            value: 'action',
+            align: 'center'
+          },
+          {
+            text: 'Timeout',
+            value: 'timeout',
+            align: 'center'
+          },
+          {
+            text: 'Relays',
+            value: 'relays',
+            align: 'center'
+          },
+        ],
+          fips12: [
+          {
+            text: 'Id',
+            value: 'id',
+            align: 'center'
+          },
+          {
+            text: 'Fips Code #1',
+            value: 'code_1',
+            align: 'center'
+          },
+          {
+            text: 'Fips Code #2',
+            value: 'code_2',
+            align: 'center'
+          },
+          {
+            text: 'Sent On',
+            value: 'sent_on',
+            align: 'center'
+          },
+          {
+            text: 'Received On',
+            value: 'received_on',
+            align: 'center'
+          },
+          {
+            text: 'Status',
+            value: 'status',
+            align: 'center'
+          }
+        ],
+        fips34: [
+          {
+            text: 'Id',
+            value: 'id',
+            align: 'center'
+          },
+          {
+            text: 'Fips Code #3',
+            value: 'code_3',
+            align: 'center'
+          },
+          {
+            text: 'Fips Code #4',
+            value: 'code_4',
+            align: 'center'
+          },
+          {
+            text: 'Sent On',
+            value: 'sent_on',
+            align: 'center'
+          },
+          {
+            text: 'Received On',
+            value: 'received_on',
+            align: 'center'
+          },
+          {
+            text: 'Status',
+            value: 'status',
+            align: 'center'
+          }
+        ],
+        config: [
+          {
+            text: 'Id',
+            value: 'id',
+            align: 'center'
+          },
+          {
+            text: 'Connection Period',
+            value: 'conn_period',
+            align: 'center'
+          },
+          {
+            text: 'Stuck Valve',
+            value: 'stuck_valve',
+            align: 'center'
+          },
+          {
+            text: 'Web chan',
+            value: 'WB_chan',
+            align: 'center'
+          },
+          {
+            text: 'RSSI',
+            value: 'RSSI',
+            align: 'center'
+          },
+          {
+            text: 'Bat OV',
+            value: 'bat_ov',
+            align: 'center'
+          },
+          {
+            text: 'Bat UV',
+            value: 'bat_uv',
+            align: 'center'
+          },
+          {
+            text: 'Sent On',
+            value: 'sent_on',
+            align: 'center'
+          },
+          {
+            text: 'Received On',
+            value: 'received_on',
+            align: 'center'
+          },
+          {
+            text: 'Status',
+            value: 'status',
+            align: 'center'
+          }
+        ],
+      },
+      rules: {
+          required: value => {
+            return !!value || 'This field is required.'
+          },
+          number: value => {
+            return (value > 0 && value <= 255) || 'Please input value between 1 and 255'
+          },
+          number1: value => {
+            return (value > 0 && value <= 2880) || 'Please input value between 1 and 2880'
+          },
+          number2: value => {
+            return (value > 0 && value <= 1800) || 'Please input value between 1 and 1800'
+          },
+          chan: value => {
+            return (value > 0 && value <= 7) || 'Please input value between 1 and 7'
+          }
+        },
+        config: {},
+        fips12: {},
+        fips34: {},
+        event: {},
+        confValid: true,
+        fips12Valid: true,
+        fips34Valid: true,
+        eventCodeValid: true,
       }),
 
       computed: {
@@ -816,18 +821,33 @@
         },
 
         async getCommandsHistories () {
-          this.commandsHistories = await getCommandsHistories(this.controller_id)
           this.historyDialog = true
+          this.commandsHistories = await getCommandsHistories(this.controller_id)
         },
 
         async getLatestCommand () {
+          this.loading = 'secondary'
           this.headers = this.defaultHeaders['event_code']
           try {
-              const res = await latestCommand(this.controller_id)
-              if (res.status == 'success' && res.data.length) {
-                this.items = [res.data[res.data.length-1]]
-              }
+            const res = await latestCommand(this.controller_id)
+            if (res.status == 'success') {
+              // map the relays with text
+              this.relays.map(relay => {
+                if (relay.value == res.data.relays) {
+                  res.data.relays = relay.text
+                }
+              })
+
+              // map action with text
+              this.actions.map(action => {
+                if (action.value == res.data.action) {
+                  res.data.action = action.text
+                }
+              })
+              this.items = [res.data]
+            }
           } catch (e) { console.log(e)}
+          this.loading = false
         },
 
         updateConfig() {

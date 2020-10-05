@@ -135,12 +135,33 @@ export const hexEncode = (str) =>  {
 
 export const WBChannels = () => {
   return [
-    {text: '162.400 MHz', value:'162.400'},
-    {text: '162.425 MHz', value: '162.425'},
-    {text: '162.450 MHz', value: '162.450'},
-    {text: '162.475 MHz', value: '162.475'},
-    {text: '162.500 MHz', value: '162.500'},
-    {text: '162.525 MHz', value: '162.525'},
-    {text: '162.550 MHz', value: '162.550'},
+    {text: '162.400 MHz', value:'1'},
+    {text: '162.425 MHz', value: '2'},
+    {text: '162.450 MHz', value: '3'},
+    {text: '162.475 MHz', value: '4'},
+    {text: '162.500 MHz', value: '5'},
+    {text: '162.525 MHz', value: '6'},
+    {text: '162.550 MHz', value: '7'},
   ]
 }
+
+export const VALVE_STATUS =  [
+  'Open',
+  'Partially Open',
+  'Close',
+  'Opening',
+  'Closing',
+  'Stuck Opening',
+  'Stuck Closing'
+]
+
+  // return [
+  //   {text: 'Open', value: 0},
+  //   {text: 'Partially Open', value: 1},
+  //   {text: 'Close', value: 2},
+  //   {text: 'Opening', value: 3},
+  //   {text: 'Closing', value: 4},
+  //   {text: 'Stuck Opening', value: 5},
+  //   {text: 'Stuck Closing', value: 6},
+  // ]
+  

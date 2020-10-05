@@ -4,6 +4,7 @@ import Vuex from 'vuex'
 Vue.use(Vuex)
 
 import publicdata from './public'
+import site from './site'
 
 export default new Vuex.Store({
   strict: process.env.NODE_ENV !== 'production',
@@ -28,5 +29,6 @@ export default new Vuex.Store({
 
   },
   modules: { 
+    site
   },
 })

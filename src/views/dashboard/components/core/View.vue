@@ -23,12 +23,23 @@
 
 <script>
   import jwtDecode from 'jwt-decode'
+  import { mapActions, mapState } from 'vuex'
 
   export default {
     name: 'DashboardCoreView',
 
+    data () {
+      return {
+        cron: null
+      }
+    },
+
     components: {
       DashboardCoreFooter: () => import('./Footer'),
+    },
+
+    mounted () {
+      this.registerCron()
     },
 
     computed: {
@@ -50,7 +61,18 @@
       }
     },
 
+    beforeDestroy () {
+      clearInterval(this.cron)
+    },
+
     methods: {
+      ...mapActions('site', ['getControllers']),
+
+      registerCron () {
+        const self = this
+        this.cron = setInterval(function() { self.getControllers() }, 300000) // 5 mins
+      },
+
       returnToRoot () {
         localStorage.setItem('custom', '')
         localStorage.setItem('token', '')
